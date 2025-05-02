@@ -1,0 +1,79 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  READER
+  WRITER
+  ADMIN
+}
+
+enum Status {
+  ACTIVE
+  SUSPENDED
+  BLOCKED
+}
+
+model User {
+  id               Int           @id @default(autoincrement())
+  email            String        @unique
+  username         String?
+  password         String
+  firstName        String
+  lastName         String
+  bio              String?
+  avatar           String?
+  type             Role
+  registrationDate DateTime      @default(now())
+  lastLoginDate    DateTime?
+  userStatus       Status        @default(ACTIVE)
+  
+  posts            Post[]
+  likes            PostLike[]
+  comments         PostComment[]
+}
+
+model Post {
+  id              Int           @id @default(autoincrement()) @map("post_id")
+  title           String        @map("post_title")
+  subtitle        String?       @map("post_subtitle")
+  titleImage      String?       @map("post_title_img")
+  authorId        Int           @map("user_id")
+  date            DateTime      @default(now()) @map("post_date")
+  updatedDate     DateTime?     @map("post_updated_date")
+  content         String        @db.Text @map("post_content")
+  commentsEnabled Boolean       @default(true) @map("comments_enabled")
+  lastUpdate      DateTime?     @map("post_last_update")
+  approved        Boolean       @default(false) @map("post_approved")
+  
+  author          User          @relation(fields: [authorId], references: [id])
+  likes           PostLike[]
+  comments        PostComment[]
+}
+
+model PostLike {
+  id        Int      @id @default(autoincrement()) @map("post_like_id")
+  postId    Int      @map("post_id")
+  userId    Int      @map("user_id")
+  likedDate DateTime @default(now()) @map("liked_date")
+  
+  post      Post     @relation(fields: [postId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model PostComment {
+  id           Int       @id @default(autoincrement()) @map("post_comment_id")
+  postId       Int       @map("post_id")
+  userId       Int       @map("user_id")
+  comment      String    @db.Text
+  date         DateTime  @default(now()) @map("comment_date")
+  updatedDate  DateTime? @map("comment_updated_date")
+  
+  post         Post      @relation(fields: [postId], references: [id])
+  user         User      @relation(fields: [userId], references: [id])
+}
