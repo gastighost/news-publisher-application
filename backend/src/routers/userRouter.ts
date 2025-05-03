@@ -1,15 +1,12 @@
 import { Router } from "express";
 import bcrypt from "bcrypt";
+
 import prisma from "../prisma/prisma_config";
 import passport from "../auth/passportAuth";
-
 import {
   userInputSchema,
   loginInputSchema,
 } from "../validations/userValidations";
-
-
-
 
 const router = Router();
 
@@ -56,23 +53,19 @@ router.post("/login", async (req, res) => {
   res.status(200).json({ message: "Login successful!" });
 });
 
-
-
 router.get(
   "/google",
   passport.authenticate("google", { scope: ["profile", "email"] })
 );
 
-
-
 router.get(
   "/google/callback",
-  passport.authenticate("google", { 
-    failureRedirect: `${process.env.FRONTEND_URL}/login?error=true`, 
-    session: true 
+  passport.authenticate("google", {
+    failureRedirect: `${process.env.FRONTEND_URL}/login?error=true`,
+    session: true,
   }),
   (req, res) => {
-    res.redirect(process.env.FRONTEND_URL || '/'); 
+    res.redirect(process.env.FRONTEND_URL || "/");
   }
 );
 

@@ -1,7 +1,8 @@
+import { Role, Status } from "@prisma/client";
 import z from "zod";
 
-const RoleEnum = z.enum(["READER", "WRITER", "ADMIN"]);
-const StatusEnum = z.enum(["ACTIVE", "SUSPENDED", "BLOCKED"]);
+const RoleEnum = z.nativeEnum(Role);
+const StatusEnum = z.nativeEnum(Status);
 
 export const userInputSchema = z.object({
   email: z.string().email(),

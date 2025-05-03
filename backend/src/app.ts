@@ -5,17 +5,19 @@ import passport from "./auth/passportAuth";
 
 import errorHandler from "./errors/errorHandler";
 import userRouter from "./routers/userRouter";
+import postRouter from "./routers/postRouter";
 import testRouter from "./routers/testRouter";
 
 const app: Application = express();
 
-app.use(cors({
-  origin: process.env.FRONTEND_URL,
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL,
+    credentials: true,
+  })
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
 
 app.use(
   session({
@@ -24,8 +26,8 @@ app.use(
     saveUninitialized: false,
     cookie: {
       secure: process.env.NODE_ENV === "production",
-      maxAge: 24 * 60 * 60 * 1000, 
-    }
+      maxAge: 24 * 60 * 60 * 1000,
+    },
   })
 );
 
@@ -33,6 +35,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use("/api/auth", userRouter);
+app.use("/api/posts", postRouter);
 app.use(testRouter);
 
 app.use(errorHandler);
