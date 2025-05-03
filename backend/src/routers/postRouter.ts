@@ -139,29 +139,36 @@ router.delete("/comments/:commentId", requireAuth, async (req, res) => {
   res.status(200).json({ message: "Comment deleted successfully" });
 });
 
-router.post("/", requireAuth, async (req, res) => {
-  const postInput = postInputSchema.parse(req.body);
+router.post(
+  "/",
+  requireAuth,
+  requireRole([Role.ADMIN, Role.WRITER]),
+  async (req, res) => {
+    const postInput = postInputSchema.parse(req.body);
 
-  const userId = req.user?.id;
+    const userId = req.user?.id;
 
-  if (!userId) {
-    res.status(401).json({ message: "User not authenticated" });
-    return;
+    if (!userId) {
+      res.status(401).json({ message: "User not authenticated" });
+      return;
+    }
+
+    const newPost = await prisma.post.create({
+      data: {
+        title: postInput.title,
+        subtitle: postInput.subtitle || null,
+        content: postInput.content,
+        titleImage: postInput.titleImage || null,
+        commentsEnabled: postInput.commentsEnabled ?? true,
+        authorId: userId,
+      },
+    });
+
+    res
+      .status(201)
+      .json({ message: "Post created successfully", post: newPost });
   }
-
-  const newPost = await prisma.post.create({
-    data: {
-      title: postInput.title,
-      subtitle: postInput.subtitle || null,
-      content: postInput.content,
-      titleImage: postInput.titleImage || null,
-      commentsEnabled: postInput.commentsEnabled ?? true,
-      authorId: userId,
-    },
-  });
-
-  res.status(201).json({ message: "Post created successfully", post: newPost });
-});
+);
 
 router.patch(
   "/:postId/approve",
