@@ -1,9 +1,9 @@
 import { Router } from "express";
+import { Role } from "@prisma/client";
 
 import prisma from "../prisma/prisma_config";
 import { requireAuth, requireRole } from "../auth/passportAuth";
 import { postInputSchema } from "../validations/postValidations";
-import { Role } from "@prisma/client";
 
 const router = Router();
 
