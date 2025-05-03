@@ -1,27 +1,15 @@
 import { Router } from "express";
-import bcrypt from "bcrypt";
 import prisma from "../prisma/prisma_config";
 
 const router = Router();
 
-
 router.get("/test", async (req, res) => {
-    res.status(200).json({ message: "Test route is working" });
+  res.status(200).json({ message: "Test route is working" });
 });
-
 
 router.get("/test_db", async (req, res) => {
-    const users = await prisma.user.findMany();
-    res.status(200).json({ message: "The db is up", users });
-
+  const users = await prisma.user.findMany();
+  res.status(200).json({ message: "The db is up", users });
 });
 
-
 export default router;
-
-
-
-
-
-
-
