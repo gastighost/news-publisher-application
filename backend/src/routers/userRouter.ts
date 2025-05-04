@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { Router, Request, Response } from "express";
 import bcrypt from "bcrypt";
 
 import prisma from "../prisma/prisma_config";
@@ -10,7 +10,7 @@ import {
 
 const router = Router();
 
-router.post("/register", async (req, res) => {
+router.post("/register", async (req: Request, res: Response) => {
   const userInput = userInputSchema.parse(req.body);
 
   const existingUser = await prisma.user.findFirst({
@@ -33,7 +33,7 @@ router.post("/register", async (req, res) => {
   res.status(201).json({ message: "Registered a new user!", newUser });
 });
 
-router.post("/login", async (req, res) => {
+router.post("/login", async (req: Request, res: Response) => {
   const { email, password } = loginInputSchema.parse(req.body);
 
   const user = await prisma.user.findUnique({ where: { email } });
@@ -64,12 +64,12 @@ router.get(
     failureRedirect: `${process.env.FRONTEND_URL}/login?error=true`,
     session: true,
   }),
-  (req, res) => {
+  (req: Request, res: Response) => {
     res.redirect(process.env.FRONTEND_URL || "/");
   }
 );
 
-router.get("/status", (req, res) => {
+router.get("/status", (req: Request, res: Response) => {
   if (req.isAuthenticated()) {
     res.status(200).json({ authenticated: true, user: req.user });
   } else {
