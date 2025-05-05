@@ -40,6 +40,71 @@ router.get("/", async (req, res) => {
   });
 });
 
+router.get("/:postId", async (req, res) => {
+  const postId = parseInt(req.params.postId);
+
+  if (isNaN(postId)) {
+    res.status(400).json({ message: "Invalid post ID" });
+    return;
+  }
+
+  const post = await prisma.post.findUnique({
+    where: { id: postId, approved: true },
+    select: {
+      id: true,
+      title: true,
+      subtitle: true,
+      titleImage: true,
+      content: true,
+      date: true,
+      updatedDate: true,
+      commentsEnabled: true,
+      author: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          avatar: true,
+        },
+      },
+      comments: {
+        select: {
+          id: true,
+          comment: true,
+          date: true,
+          updatedDate: true,
+          user: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              username: true,
+              avatar: true,
+            },
+          },
+        },
+      },
+      likes: {
+        select: {
+          id: true,
+        },
+      },
+    },
+  });
+
+  if (!post) {
+    res.status(404).json({ message: "Post not found" });
+    return;
+  }
+
+  const postWithLikeCount = {
+    ...post,
+    likeCount: post.likes.length,
+  };
+
+  res.status(200).json(postWithLikeCount);
+});
+
 /**
  * @route POST /:postId/comments
  * @description Add a comment to a specific post

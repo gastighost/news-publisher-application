@@ -20,3 +20,11 @@ export const loginInputSchema = userInputSchema.pick({
   email: true,
   password: true,
 });
+
+export const updateUserStatusSchema = z.object({
+  userStatus: z.nativeEnum(Status, {
+    errorMap: () => ({
+      message: `Status must be one of the following: ${Status}.`,
+    }),
+  }),
+});

@@ -1,12 +1,15 @@
 import { Router } from "express";
 import bcrypt from "bcrypt";
+import { Role } from "@prisma/client";
 
 import prisma from "../prisma/prisma_config";
 import { env } from "../utils/validateEnv";
 import passport from "../auth/passportAuth";
+import { requireAuth, requireRole } from "../auth/passportAuth";
 import {
   userInputSchema,
   loginInputSchema,
+  updateUserStatusSchema,
 } from "../validations/userValidations";
 
 const router = Router();
@@ -77,5 +80,58 @@ router.get("/status", (req, res) => {
     res.status(401).json({ authenticated: false });
   }
 });
+
+router.get(
+  "/users",
+  requireAuth,
+  requireRole([Role.ADMIN]),
+  async (req, res) => {
+    const users = await prisma.user.findMany({
+      select: {
+        id: true,
+        email: true,
+        username: true,
+        firstName: true,
+        lastName: true,
+        bio: true,
+        avatar: true,
+        type: true,
+        registrationDate: true,
+        lastLoginDate: true,
+        userStatus: true,
+      },
+    });
+
+    res.status(200).json(users);
+  }
+);
+
+router.patch(
+  "/users/:userId/status",
+  requireAuth,
+  requireRole([Role.ADMIN]),
+  async (req, res) => {
+    const { userId } = req.params;
+    const { userStatus } = updateUserStatusSchema.parse(req.body);
+
+    const updatedUser = await prisma.user.update({
+      where: { id: parseInt(userId, 10) },
+      data: { userStatus },
+      select: {
+        id: true,
+        email: true,
+        username: true,
+        firstName: true,
+        lastName: true,
+        userStatus: true,
+      },
+    });
+
+    res.status(200).json({
+      message: `User status updated to ${userStatus}.`,
+      user: updatedUser,
+    });
+  }
+);
 
 export default router;
