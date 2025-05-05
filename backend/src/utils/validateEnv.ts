@@ -33,9 +33,10 @@ const envSchema = z.object({
   SESSION_SECRET: z.string().nonempty("SESSION_SECRET is required"),
   FRONTEND_URL: z.string().url("FRONTEND_URL must be a valid URL"),
   NODE_ENV: z
-    .enum(["development", "production"], {
+    .enum(["development", "test", "production"], {
       errorMap: () => ({
-        message: "NODE_ENV must be either 'development' or 'production'",
+        message:
+          "NODE_ENV must be either 'development', 'test', or 'production'",
       }),
     })
     .optional(),
