@@ -7,6 +7,7 @@ import { requireAuth, requireRole } from "../auth/passportAuth";
 import {
   commentInputSchema,
   postInputSchema,
+  postUpdateStatusSchema,
 } from "../validations/postValidations";
 
 const router = Router();
@@ -144,12 +145,7 @@ router.patch(
   requireAuth,
   async (req: Request, res: Response) => {
     const commentId = parseInt(req.params.commentId);
-    const { comment } = req.body;
-
-    if (!comment || comment.trim() === "") {
-      res.status(400).json({ message: "Comment cannot be empty" });
-      return;
-    }
+    const { comment } = commentInputSchema.parse(req.body);
 
     const userId = req.user?.id;
 
@@ -256,45 +252,29 @@ router.post(
 );
 
 router.patch(
-  "/:postId/approve",
+  "/:postId/status",
   requireAuth,
   requireRole([Role.ADMIN]),
   async (req: Request, res: Response) => {
     const postId = parseInt(req.params.postId);
+    const { approved } = postUpdateStatusSchema.parse(req.body);
 
     const updatedPost = await prisma.post.update({
       where: { id: postId },
-      data: { approved: true },
+      data: { approved },
     });
 
-    res
-      .status(200)
-      .json({ message: "Post approved successfully", post: updatedPost });
-  }
-);
-
-router.patch(
-  "/:postId/reject",
-  requireAuth,
-  requireRole(["ADMIN"]),
-  async (req: Request, res: Response) => {
-    const postId = parseInt(req.params.postId);
-
-    const updatedPost = await prisma.post.update({
-      where: { id: postId },
-      data: { approved: false },
+    res.status(200).json({
+      message: `Post ${approved ? "approved" : "rejected"} successfully`,
+      post: updatedPost,
     });
-
-    res
-      .status(200)
-      .json({ message: "Post rejected successfully", post: updatedPost });
   }
 );
 
 router.delete(
   "/:postId",
   requireAuth,
-  requireRole(["ADMIN"]),
+  requireRole([Role.ADMIN]),
   async (req: Request, res: Response) => {
     const postId = parseInt(req.params.postId);
 
