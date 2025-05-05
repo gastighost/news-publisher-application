@@ -35,7 +35,7 @@ router.get("/", async (req: Request, res: Response) => {
   });
 });
 
-router.get("/:postId", async (req, res) => {
+router.get("/:postId", async (req: Request, res: Response) => {
   const postId = parseInt(req.params.postId);
 
   if (isNaN(postId)) {
@@ -108,34 +108,38 @@ router.get("/:postId", async (req, res) => {
  * @body {string} comment - The content of the comment
  * @returns {Object} - The newly created comment
  */
-router.post("/:postId/comments", requireAuth, async (req, res) => {
-  const postId = parseInt(req.params.postId);
-  const { comment } = req.body;
+router.post(
+  "/:postId/comments",
+  requireAuth,
+  async (req: Request, res: Response) => {
+    const postId = parseInt(req.params.postId);
+    const { comment } = req.body;
 
-  if (!comment || comment.trim() === "") {
-    res.status(400).json({ message: "Comment cannot be empty" });
-    return;
+    if (!comment || comment.trim() === "") {
+      res.status(400).json({ message: "Comment cannot be empty" });
+      return;
+    }
+
+    const userId = req.user?.id;
+
+    if (!userId) {
+      res.status(401).json({ message: "User not authenticated" });
+      return;
+    }
+
+    const newComment = await prisma.postComment.create({
+      data: {
+        postId,
+        userId,
+        comment,
+      },
+    });
+
+    res
+      .status(201)
+      .json({ message: "Comment added successfully", comment: newComment });
   }
-
-  const userId = req.user?.id;
-
-  if (!userId) {
-    res.status(401).json({ message: "User not authenticated" });
-    return;
-  }
-
-  const newComment = await prisma.postComment.create({
-    data: {
-      postId,
-      userId,
-      comment,
-    },
-  });
-
-  res
-    .status(201)
-    .json({ message: "Comment added successfully", comment: newComment });
-});
+);
 
 router.patch(
   "/comments/:commentId",
