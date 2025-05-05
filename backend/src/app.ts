@@ -1,7 +1,9 @@
 import express, { Application } from "express";
 import cors from "cors";
 import session from "express-session";
+
 import passport from "./auth/passportAuth";
+import { env } from "./utils/validateEnv";
 
 import errorHandler from "./errors/errorHandler";
 import userRouter from "./routers/userRouter";
@@ -12,7 +14,7 @@ const app: Application = express();
 
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL,
+    origin: env.FRONTEND_URL,
     credentials: true,
   })
 );
@@ -21,11 +23,11 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(
   session({
-    secret: process.env.SESSION_SECRET || "your-secret-key",
+    secret: env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: process.env.NODE_ENV === "production",
+      secure: env.NODE_ENV === "production",
       maxAge: 24 * 60 * 60 * 1000,
     },
   })

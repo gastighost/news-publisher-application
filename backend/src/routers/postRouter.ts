@@ -192,9 +192,9 @@ router.post(
     const newPost = await prisma.post.create({
       data: {
         title: postInput.title,
-        subtitle: postInput.subtitle || null,
+        subtitle: postInput.subtitle ?? null,
         content: postInput.content,
-        titleImage: postInput.titleImage || null,
+        titleImage: postInput.titleImage ?? null,
         commentsEnabled: postInput.commentsEnabled ?? true,
         authorId: userId,
       },

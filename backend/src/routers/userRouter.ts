@@ -2,6 +2,7 @@ import { Router } from "express";
 import bcrypt from "bcrypt";
 
 import prisma from "../prisma/prisma_config";
+import { env } from "../utils/validateEnv";
 import passport from "../auth/passportAuth";
 import {
   userInputSchema,
@@ -61,11 +62,11 @@ router.get(
 router.get(
   "/google/callback",
   passport.authenticate("google", {
-    failureRedirect: `${process.env.FRONTEND_URL}/login?error=true`,
+    failureRedirect: `${env.FRONTEND_URL}/`,
     session: true,
   }),
   (req, res) => {
-    res.redirect(process.env.FRONTEND_URL || "/");
+    res.redirect(`${env.FRONTEND_URL}/`);
   }
 );
 
