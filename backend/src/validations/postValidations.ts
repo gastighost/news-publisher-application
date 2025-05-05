@@ -7,3 +7,7 @@ export const postInputSchema = z.object({
   titleImage: z.string().optional(),
   commentsEnabled: z.boolean().optional(),
 });
+
+export const commentInputSchema = z.object({
+  comment: z.string().nonempty("Comment is required"),
+});
