@@ -1,5 +1,8 @@
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
 
+
+
+
 export const authApi = {
   getGoogleAuthUrl: () => {
     return `${BACKEND_URL}/api/auth/google`;
@@ -16,6 +19,8 @@ export const authApi = {
       return { authenticated: false };
     }
   },
+
+
   logout: async () => {
     try {
       const response = await fetch(`${BACKEND_URL}/api/auth/logout`, {
@@ -28,4 +33,5 @@ export const authApi = {
       return false;
     }
   }
+  
 };
