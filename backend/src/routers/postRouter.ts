@@ -276,7 +276,7 @@ router.patch(
 router.patch(
   "/:postId/reject",
   requireAuth,
-  requireRole(["ADMIN"]),
+  requireRole([Role.ADMIN]),
   async (req: Request, res: Response) => {
     const postId = parseInt(req.params.postId);
 
@@ -294,7 +294,7 @@ router.patch(
 router.delete(
   "/:postId",
   requireAuth,
-  requireRole(["ADMIN"]),
+  requireRole([Role.ADMIN]),
   async (req: Request, res: Response) => {
     const postId = parseInt(req.params.postId);
 
