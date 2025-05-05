@@ -12,55 +12,62 @@ declare global {
   }
 }
 
-passport.use(
-  new GoogleStrategy(
-    {
-      clientID: env.GOOGLE_CLIENT_ID,
-      clientSecret: env.GOOGLE_CLIENT_SECRET,
-      callbackURL: env.GOOGLE_CALLBACK_URL,
-    },
-    async (accessToken, refreshToken, profile, done) => {
-      try {
-        const existingUser = await prisma.user.findFirst({
-          where: {
-            email: profile.emails?.[0]?.value,
-          },
-        });
+export const googleVerify = async (
+  accessToken: string,
+  refreshToken: string,
+  profile: any,
+  done: Function
+) => {
+  try {
+    const existingUser = await prisma.user.findFirst({
+      where: {
+        email: profile.emails?.[0]?.value,
+      },
+    });
 
-        if (existingUser) {
-          const updatedUser = await prisma.user.update({
-            where: { id: existingUser.id },
-            data: { lastLoginDate: new Date() },
-          });
+    if (existingUser) {
+      const updatedUser = await prisma.user.update({
+        where: { id: existingUser.id },
+        data: { lastLoginDate: new Date() },
+      });
 
-          return done(null, updatedUser);
-        }
-
-        const newUser = await prisma.user.create({
-          data: {
-            email: profile.emails?.[0]?.value ?? "",
-            firstName: profile.name?.givenName ?? "",
-            lastName: profile.name?.familyName ?? "",
-            password: "",
-            type: Role.READER,
-            username: profile.displayName ?? `user_${Date.now()}`,
-            avatar: profile.photos?.[0]?.value,
-          },
-        });
-
-        return done(null, newUser);
-      } catch (error) {
-        console.error("Error in GoogleStrategy:", error);
-
-        if (error instanceof Error) {
-          return done(error, undefined);
-        }
-
-        return done(new Error("An unknown error occurred"), undefined);
-      }
+      return done(null, updatedUser);
     }
-  )
+
+    const newUser = await prisma.user.create({
+      data: {
+        email: profile.emails?.[0]?.value ?? "",
+        firstName: profile.name?.givenName ?? "",
+        lastName: profile.name?.familyName ?? "",
+        password: "",
+        type: Role.READER,
+        username: profile.displayName ?? `user_${Date.now()}`,
+        avatar: profile.photos?.[0]?.value,
+      },
+    });
+
+    return done(null, newUser);
+  } catch (error) {
+    console.error("Error in GoogleStrategy:", error);
+
+    if (error instanceof Error) {
+      return done(error, undefined);
+    }
+
+    return done(new Error("An unknown error occurred"), undefined);
+  }
+};
+
+export const googleStrategy = new GoogleStrategy(
+  {
+    clientID: env.GOOGLE_CLIENT_ID,
+    clientSecret: env.GOOGLE_CLIENT_SECRET,
+    callbackURL: env.GOOGLE_CALLBACK_URL,
+  },
+  googleVerify
 );
+
+passport.use(googleStrategy);
 
 passport.serializeUser((user: Express.User, done) => {
   done(null, user.id);
