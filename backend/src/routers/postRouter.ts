@@ -4,7 +4,10 @@ import { Request, Response } from "express";
 
 import prisma from "../prisma/prisma_config";
 import { requireAuth, requireRole } from "../auth/passportAuth";
-import { postInputSchema } from "../validations/postValidations";
+import {
+  commentInputSchema,
+  postInputSchema,
+} from "../validations/postValidations";
 
 const router = Router();
 
@@ -113,12 +116,7 @@ router.post(
   requireAuth,
   async (req: Request, res: Response) => {
     const postId = parseInt(req.params.postId);
-    const { comment } = req.body;
-
-    if (!comment || comment.trim() === "") {
-      res.status(400).json({ message: "Comment cannot be empty" });
-      return;
-    }
+    const { comment } = commentInputSchema.parse(req.body);
 
     const userId = req.user?.id;
 
