@@ -11,3 +11,7 @@ export const postInputSchema = z.object({
 export const commentInputSchema = z.object({
   comment: z.string().nonempty("Comment is required"),
 });
+
+export const postUpdateStatusSchema = z.object({
+  approved: z.boolean(),
+});
