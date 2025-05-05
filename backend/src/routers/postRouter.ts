@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { Role } from "@prisma/client";
+import { Request, Response } from "express";
 
 import prisma from "../prisma/prisma_config";
 import { requireAuth, requireRole } from "../auth/passportAuth";
@@ -7,13 +8,7 @@ import { postInputSchema } from "../validations/postValidations";
 
 const router = Router();
 
-/**
- * @route GET /
- * @description Fetch all approved posts for readership
- * @access Public
- * @returns {Object} - A list of approved posts
- */
-router.get("/", async (req, res) => {
+router.get("/", async (req: Request, res: Response) => {
   const posts = await prisma.post.findMany({
     where: { approved: true },
     orderBy: { date: "desc" },
@@ -142,109 +137,96 @@ router.post("/:postId/comments", requireAuth, async (req, res) => {
     .json({ message: "Comment added successfully", comment: newComment });
 });
 
-/**
- * @route PATCH /comments/:commentId
- * @description Update a specific comment
- * @access Authenticated users (comment owner only)
- * @param {number} commentId - The ID of the comment to update
- * @body {string} comment - The updated content of the comment
- * @returns {Object} - The updated comment
- */
-router.patch("/comments/:commentId", requireAuth, async (req, res) => {
-  const commentId = parseInt(req.params.commentId);
-  const { comment } = req.body;
+router.patch(
+  "/comments/:commentId",
+  requireAuth,
+  async (req: Request, res: Response) => {
+    const commentId = parseInt(req.params.commentId);
+    const { comment } = req.body;
 
-  if (!comment || comment.trim() === "") {
-    res.status(400).json({ message: "Comment cannot be empty" });
-    return;
+    if (!comment || comment.trim() === "") {
+      res.status(400).json({ message: "Comment cannot be empty" });
+      return;
+    }
+
+    const userId = req.user?.id;
+
+    if (!userId) {
+      res.status(401).json({ message: "User not authenticated" });
+      return;
+    }
+
+    const existingComment = await prisma.postComment.findUnique({
+      where: { id: commentId },
+    });
+
+    if (!existingComment) {
+      res.status(404).json({ message: "Comment not found" });
+      return;
+    }
+
+    if (existingComment.userId !== userId) {
+      res
+        .status(403)
+        .json({ message: "You are not authorized to update this comment" });
+      return;
+    }
+
+    const updatedComment = await prisma.postComment.update({
+      where: { id: commentId },
+      data: { comment },
+    });
+
+    res.status(200).json({
+      message: "Comment updated successfully",
+      comment: updatedComment,
+    });
   }
+);
 
-  const userId = req.user?.id;
+router.delete(
+  "/comments/:commentId",
+  requireAuth,
+  async (req: Request, res: Response) => {
+    const commentId = parseInt(req.params.commentId);
 
-  if (!userId) {
-    res.status(401).json({ message: "User not authenticated" });
-    return;
+    const userId = req.user?.id;
+    const userRole = req.user?.type;
+
+    if (!userId) {
+      res.status(401).json({ message: "User not authenticated" });
+      return;
+    }
+
+    const existingComment = await prisma.postComment.findUnique({
+      where: { id: commentId },
+    });
+
+    if (!existingComment) {
+      res.status(404).json({ message: "Comment for deletion not found" });
+      return;
+    }
+
+    if (existingComment.userId !== userId && userRole !== Role.ADMIN) {
+      res
+        .status(403)
+        .json({ message: "You are not authorized to delete this comment" });
+      return;
+    }
+
+    await prisma.postComment.delete({
+      where: { id: commentId },
+    });
+
+    res.status(200).json({ message: "Comment deleted successfully" });
   }
+);
 
-  const existingComment = await prisma.postComment.findUnique({
-    where: { id: commentId },
-  });
-
-  if (!existingComment) {
-    res.status(404).json({ message: "Comment not found" });
-    return;
-  }
-
-  if (existingComment.userId !== userId) {
-    res
-      .status(403)
-      .json({ message: "You are not authorized to update this comment" });
-    return;
-  }
-
-  const updatedComment = await prisma.postComment.update({
-    where: { id: commentId },
-    data: { comment },
-  });
-
-  res
-    .status(200)
-    .json({ message: "Comment updated successfully", comment: updatedComment });
-});
-
-/**
- * @route DELETE /comments/:commentId
- * @description Delete a specific comment
- * @access Authenticated users (comment owner or admin)
- * @param {number} commentId - The ID of the comment to delete
- * @returns {Object} - A success message
- */
-router.delete("/comments/:commentId", requireAuth, async (req, res) => {
-  const commentId = parseInt(req.params.commentId);
-
-  const userId = req.user?.id;
-  const userRole = req.user?.type;
-
-  if (!userId) {
-    res.status(401).json({ message: "User not authenticated" });
-    return;
-  }
-
-  const existingComment = await prisma.postComment.findUnique({
-    where: { id: commentId },
-  });
-
-  if (!existingComment) {
-    res.status(404).json({ message: "Comment for deletion not found" });
-    return;
-  }
-
-  if (existingComment.userId !== userId && userRole !== Role.ADMIN) {
-    res
-      .status(403)
-      .json({ message: "You are not authorized to delete this comment" });
-    return;
-  }
-
-  await prisma.postComment.delete({
-    where: { id: commentId },
-  });
-
-  res.status(200).json({ message: "Comment deleted successfully" });
-});
-
-/**
- * @route POST /
- * @description Create a new post
- * @access Authenticated users (Admin or Writer roles)
- * @body {Object} postInput - The post details (title, content, etc.)
- * @returns {Object} - The newly created post
- */
 router.post(
   "/",
   requireAuth,
   requireRole([Role.ADMIN, Role.WRITER]),
-  async (req, res) => {
+  async (req: Request, res: Response) => {
     const postInput = postInputSchema.parse(req.body);
 
     const userId = req.user?.id;
@@ -271,18 +253,11 @@ router.post(
   }
 );
 
-/**
- * @route PATCH /:postId/approve
- * @description Approve a specific post
- * @access Admin only
- * @param {number} postId - The ID of the post to approve
- * @returns {Object} - The updated post
- */
 router.patch(
   "/:postId/approve",
   requireAuth,
   requireRole([Role.ADMIN]),
-  async (req, res) => {
+  async (req: Request, res: Response) => {
     const postId = parseInt(req.params.postId);
 
     const updatedPost = await prisma.post.update({
@@ -296,18 +271,11 @@ router.patch(
   }
 );
 
-/**
- * @route PATCH /:postId/reject
- * @description Reject a specific post
- * @access Admin only
- * @param {number} postId - The ID of the post to reject
- * @returns {Object} - The updated post
- */
 router.patch(
   "/:postId/reject",
   requireAuth,
   requireRole(["ADMIN"]),
-  async (req, res) => {
+  async (req: Request, res: Response) => {
     const postId = parseInt(req.params.postId);
 
     const updatedPost = await prisma.post.update({
@@ -321,18 +289,11 @@ router.patch(
   }
 );
 
-/**
- * @route DELETE /:postId
- * @description Delete a specific post
- * @access Admin only
- * @param {number} postId - The ID of the post to delete
- * @returns {Object} - A success message
- */
 router.delete(
   "/:postId",
   requireAuth,
   requireRole(["ADMIN"]),
-  async (req, res) => {
+  async (req: Request, res: Response) => {
     const postId = parseInt(req.params.postId);
 
     await prisma.post.delete({
