@@ -144,12 +144,7 @@ router.patch(
   requireAuth,
   async (req: Request, res: Response) => {
     const commentId = parseInt(req.params.commentId);
-    const { comment } = req.body;
-
-    if (!comment || comment.trim() === "") {
-      res.status(400).json({ message: "Comment cannot be empty" });
-      return;
-    }
+    const { comment } = commentInputSchema.parse(req.body);
 
     const userId = req.user?.id;
 
