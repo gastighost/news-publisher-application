@@ -101,7 +101,9 @@ router.get("/:postId", async (req: Request, res: Response) => {
     likeCount: post.likes.length,
   };
 
-  res.status(200).json(postWithLikeCount);
+  res
+    .status(200)
+    .json({ message: "Post successfully retrieved.", post: postWithLikeCount });
 });
 
 /**
