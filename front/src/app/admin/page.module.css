@@ -1,0 +1,51 @@
+.userCard {
+  display: grid;
+  grid-template-columns: 2fr 2fr 1fr 1fr;
+  border: solid 1px white;
+  border-radius: 25px;
+}
+
+.userCard a {
+  cursor: pointer;
+}
+
+.userAvatar {
+  grid-row: 1/5;
+  margin: 0 auto;
+  padding: 10px;
+}
+
+.userName {
+  grid-column: 2/5;
+  padding: 10px;
+}
+
+.userBio {
+  grid-column: 2/4;
+  padding: 10px;
+}
+
+.userComments {
+  grid-column: 2/4;
+  padding: 10px;
+}
+
+.blockButton {
+  background-color: red;
+}
+
+.suspendButton {
+  background-color: orange;
+}
+
+/* Main admin page */
+.mainUsers {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 20px;
+}
+
+.main {
+  margin: 0 auto;
+  padding: 20px;
+}
