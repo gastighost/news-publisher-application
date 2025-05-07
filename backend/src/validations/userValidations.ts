@@ -7,7 +7,7 @@ const StatusEnum = z.nativeEnum(Status);
 export const userInputSchema = z.object({
   email: z.string().email(),
   username: z.string().optional(),
-  password: z.string().min(6),
+  password: z.string().min(8),
   firstName: z.string(),
   lastName: z.string(),
   bio: z.string().optional(),
@@ -16,10 +16,14 @@ export const userInputSchema = z.object({
   userStatus: StatusEnum.optional(),
 });
 
+export type UserInput = z.infer<typeof userInputSchema>;
+
 export const loginInputSchema = userInputSchema.pick({
   email: true,
   password: true,
 });
+
+export type LoginInput = z.infer<typeof loginInputSchema>;
 
 export const updateUserStatusSchema = z.object({
   userStatus: z.nativeEnum(Status, {
@@ -28,3 +32,5 @@ export const updateUserStatusSchema = z.object({
     }),
   }),
 });
+
+export type UpdateUserStatusInput = z.infer<typeof updateUserStatusSchema>;
