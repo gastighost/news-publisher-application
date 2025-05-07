@@ -7,7 +7,6 @@ import type { Post } from "../../types/post";
 import styles from "./ScrollPosts.module.css"
 
 export default async function Post({ post }: { post: Post }) {
-    // Helper to format author's name
     const getAuthorDisplayName = () => {
         if (!post.author) {
             return "Unknown Author";
