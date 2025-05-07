@@ -1,0 +1,28 @@
+:root {
+    --background-color: #070707;
+    --text-color: #FFFFFF;
+    --border-color: #515151;
+    --placeholder-bg: yellow;
+    --link-color: #FFFFFF;
+    --secondary-text-color: #a0a0a0; 
+    --subtitle-text-color: #cccccc; 
+
+    --font-open-sans-hebrew: "Open Sans Hebrew", sans-serif;
+    --font-saira: "Saira", sans-serif;
+  }
+  
+  body {
+    background-color: var(--background-color);
+    color: var(--text-color);
+    margin: 0;
+    font-family: var(--font-saira); 
+  }
+  
+  a {
+    color: var(--link-color);
+    text-decoration: none;
+  }
+  
+  a:hover {
+    text-decoration: underline;
+  }
