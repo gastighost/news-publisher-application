@@ -1,11 +1,28 @@
-"use client";
-import { useState, useEffect } from "react";
+import prisma from "@/prisma/prisma_config";
+import styles from "./page.module.css";
 
-import styles from './page.module.css'; 
+export default async function Home() {
+  const posts = await prisma.post.findMany(
+    {
+    // where: { // have to remove after testing
+    //   approved: true,
+    // },
+    include: {
+      author: true,
+    },
+  }
+);
 
+  // console.log(posts) 
 
+  const getAuthorName = (author: typeof posts[0]["author"] | null | undefined): string => {
+    if (!author) {
+      return "Unknown Author";
+    }
+    const nameParts = [author.firstName, author.lastName].filter(Boolean);
+    return nameParts.join(" ") || "Unknown Author";
+  };
 
-export default function Home() {
   return (
     <div className={styles.container}>
       <header className={styles.header}>
@@ -21,64 +38,110 @@ export default function Home() {
       </header>
 
       <main className={styles.mainContent}>
-        <section className={styles.featuredSection}>
-          <div className={styles.featuredText}>
-            <h1>Vancouver Prepares for Early Heatwave as Temperatures Soar Above 25 °C</h1>
-            <p>Meteorologists predict that a Pacific high-pressure ridge will bring clear skies and unseasonably warm weather to the region, with daytime highs expected to reach 27 °C and minimal overnight cooling through the weekend.</p>
-            <div className={styles.meta}>Health & Science | Sophie Nguyen | May 3, 12:45, 2025</div>
-          </div>
-          <div className={styles.featuredImagePlaceholder}></div>
-        </section>
+        {posts[0] ? (
+          <section className={styles.featuredSection}>
+            <div className={styles.featuredText}>
+              <h1>{posts[0].title}</h1>
+              <p>
+                {posts[0].subtitle ||
+                  posts[0].content.substring(0, 200) +
+                    (posts[0].content.length > 200 ? "..." : "")}
+              </p>
+              <div className={styles.meta}>{`${posts[0].category || "General"} | ${getAuthorName(posts[0].author)} | ${new Date(posts[0].date).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}`}</div>
+            </div>
+            {posts[0].titleImage ? (
+              <img
+                src={posts[0].titleImage}
+                alt={posts[0].title}
+                className={styles.featuredImagePlaceholder}
+              />
+            ) : (
+              <div className={styles.featuredImagePlaceholder}></div>
+            )}
+          </section>
+        ) : (
+          <section className={styles.featuredSection}>
+            <div className={styles.featuredText}>
+              <h1>Post not available</h1>
+              <p>The featured post could not be loaded at this time.</p>
+            </div>
+            <div className={styles.featuredImagePlaceholder}></div>
+          </section>
+        )}
 
         <aside className={styles.sidebar}>
-          <div className={styles.sidebarArticle}>
-            <div className={styles.sidebarImagePlaceholder}></div>
-            <div className={styles.sidebarText}>
-              <div className={styles.meta}>Daniel Albarta | October 22, 09:30, 2023</div>
-              <h3>'Washy Clouds and a Weepy Sky Floating Upside Down...'</h3>
-              <div className={styles.meta}>Our Planet | 8 mins read</div>
-            </div>
-          </div>
-          <div className={styles.sidebarArticle}>
-            <div className={styles.sidebarImagePlaceholder}></div>
-            <div className={styles.sidebarText}>
-              <div className={styles.meta}>Natalia Freigman | October 21, 14:20, 2023</div>
-              <h3>Curiosity Rover Discovers New Evidence Mars Once...</h3>
-              <div className={styles.meta}>Space | 7 mins read</div>
-            </div>
-          </div>
-          <div className={styles.sidebarArticle}>
-            <div className={styles.sidebarImagePlaceholder}></div>
-            <div className={styles.sidebarText}>
-              <div className={styles.meta}>Antonio Roberto | October 19, 08:15, 2023</div>
-              <h3>Satellite Data Reveals Ancient Landscape Preser...</h3>
-              <div className={styles.meta}>Space | 12 mins read</div>
-            </div>
-          </div>
+          {posts.slice(1, 4).map((post) => {
+            const formattedDate = new Date(post.date).toLocaleDateString(
+              "en-US",
+              {
+                month: "long",
+                day: "numeric",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: false,
+              }
+            );
+            const authorDisplayName = getAuthorName(post.author);
+
+            return (
+              <div key={post.id} className={styles.sidebarArticle}>
+                {post.titleImage ? (
+                  <img
+                    src={post.titleImage}
+                    alt={post.title}
+                    className={styles.sidebarImagePlaceholder}
+                  />
+                ) : (
+                  <div className={styles.sidebarImagePlaceholder}></div>
+                )}
+                <div className={styles.sidebarText}>
+                  <div className={styles.meta}>
+                    {`${post.category || "General"} | ${authorDisplayName} | ${formattedDate}`}
+                  </div>
+                  <h3>{post.title}</h3>
+                  {post.subtitle && (
+                    <p className={styles.sidebarSubtitle}>{post.subtitle}</p>
+                  )}
+                  <div className={styles.meta}>Space | 7 mins read</div>
+                </div>
+              </div>
+            );
+          })}
         </aside>
       </main>
 
       <section className={styles.bottomSection}>
-        <div className={styles.bottomArticle}>
-          <div className={styles.meta}>Donn Robinson | October 22, 11:05, 2023</div>
-          <h4>If Alien Life is Artificially Intelligent, it May be.....</h4>
-          <div className={styles.meta}>Space and Universe | 9 mins read</div>
-        </div>
-        <div className={styles.bottomArticle}>
-          <div className={styles.meta}>Max Wellerman | October 22, 16:40, 2023</div>
-          <h4>Climate change has pushed Earth into 'Uncharted.....</h4>
-          <div className={styles.meta}>Our Planet | 35mins read</div>
-        </div>
-        <div className={styles.bottomArticle}>
-          <div className={styles.meta}>Sean Paula | October 19, 10:25, 2023</div>
-          <h4>Humanity at Risk from AI 'Race to the Bottom'.....</h4>
-          <div className={styles.meta}>Space | 12 mins read</div>
-        </div>
-        <div className={styles.bottomArticle}>
-          <div className={styles.meta}>Antonio Roberto | October 19, 13:50, 2023</div>
-          <h4>UN Science Body Head Fears Lower Chance of Keeping...</h4>
-          <div className={styles.meta}>Space | 12 mins read</div>
-        </div>
+        {posts.slice(4, 8).map((post) => {
+          const formattedDate = new Date(post.date).toLocaleDateString(
+            "en-US",
+            {
+              month: "long",
+              day: "numeric",
+              year: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: false,
+            }
+          );
+          const authorDisplayName = getAuthorName(post.author);
+
+          return (
+            <div key={post.id} className={styles.bottomArticle}>
+              <div
+                className={styles.meta}
+              >{`${post.category || "General"} | ${authorDisplayName} | ${formattedDate}`}</div>
+              <h4 className={styles.bottomTitle} >{post.title}</h4>
+              {post.subtitle && (
+                <p className={styles.bottomArticleSubtitle}>{post.subtitle}</p>
+              )}
+              <div className={styles.meta}>
+                Space | {Math.floor(Math.random() * 10) + 5} mins read
+              </div>
+            </div>
+          );
+        })}
+
       </section>
     </div>
   );

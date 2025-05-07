@@ -4,7 +4,11 @@
     --border-color: #515151;
     --placeholder-bg: yellow;
     --link-color: #FFFFFF;
+
+    --secondary-text-color: #a0a0a0; 
+    --subtitle-text-color: #cccccc; 
     --secondary-text-color: #a0a0a0; /* Added for metadata */
+
 
     --font-open-sans-hebrew: "Open Sans Hebrew", sans-serif;
     --font-saira: "Saira", sans-serif;
@@ -14,7 +18,11 @@
     background-color: var(--background-color);
     color: var(--text-color);
     margin: 0;
+
+    font-family: var(--font-saira); 
+
     font-family: var(--font-saira); /* Default font */
+
   }
   
   a {
