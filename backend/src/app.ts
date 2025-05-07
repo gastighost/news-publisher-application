@@ -8,7 +8,7 @@ import { env } from "./utils/validateEnv";
 import errorHandler from "./errors/errorHandler";
 import userRouter from "./routers/userRouter";
 import postRouter from "./routers/postRouter";
-import testRouter from "./routers/testRouter";
+
 
 const app: Application = express();
 
@@ -38,7 +38,6 @@ app.use(passport.session());
 
 app.use("/api/auth", userRouter);
 app.use("/api/posts", postRouter);
-app.use(testRouter);
 
 app.use(errorHandler);
 

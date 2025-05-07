@@ -1,8 +1,14 @@
 import { ErrorRequestHandler } from "express";
+import { Request, Response } from "express";
 
 import { CustomError } from "./CustomError";
 
-const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
+const errorHandler: ErrorRequestHandler = (
+  err,
+  req: Request,
+  res: Response,
+  next
+) => {
   console.error(err.stack);
 
   if (err instanceof CustomError) {
