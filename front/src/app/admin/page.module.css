@@ -1,51 +1,54 @@
 .userCard {
-  display: grid;
-  grid-template-columns: 2fr 2fr 1fr 1fr;
-  border: solid 1px white;
-  border-radius: 25px;
+  border-radius: 15px;
+  border: 1px solid white;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
 }
-
-.userCard a {
-  cursor: pointer;
-}
-
-.userAvatar {
-  grid-row: 1/5;
+.userCard * {
+  text-align: center;
+  padding: 5px;
   margin: 0 auto;
-  padding: 10px;
-}
 
-.userName {
-  grid-column: 2/5;
-  padding: 10px;
+}
+.userAvatar {
+  width: 30%;
+  margin-top: 10px;
 }
 
 .userBio {
-  grid-column: 2/4;
-  padding: 10px;
+  margin: 0 10px;
 }
 
-.userComments {
-  grid-column: 2/4;
-  padding: 10px;
+.btns {
+  display: flex;
+  justify-content: flex-end;
+  align-items: right;
+  margin: 5px;
 }
 
-.blockButton {
-  background-color: red;
-}
-
-.suspendButton {
-  background-color: orange;
+.btns a {
+  margin: 5px;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
 }
 
 /* Main admin page */
 .mainUsers {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 20px;
 }
 
 .main {
   margin: 0 auto;
   padding: 20px;
+}
+
+@media screen and (max-width: 600px){
+  .main {
+    padding: 30px;
+  }
+
 }

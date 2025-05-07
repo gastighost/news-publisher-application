@@ -22,11 +22,14 @@ export function User({ user, blockUser, suspendUser }: UserProps) {
   const {
     user_first_name = "N/A",
     user_last_name = "N/A",
-    user_bio = "No bio available",
+    user_bio = "No bio available, but how do we handle bios that are too long? abandned this is lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec a diam lectus, congue vel laoreet ac, dictum vitae odio. Maecenas nec enim et est facilisis euismod.".substring(
+      0,
+      120 // replace with user_bio when there is real data
+    ) + "...",
     user_avatar = "default-avatar.png",
     user_register_day = "Unknown",
     user_last_login = "Never",
-    user_status = "Inactive",
+    user_status = "Active",
   } = user;
 
   return (
@@ -38,14 +41,25 @@ export function User({ user, blockUser, suspendUser }: UserProps) {
         className={styles.userAvatar}
       />
       <h2 className={styles.userName}>{user.username}</h2>
+      <h3>{user_status}</h3>
       <p className={styles.userBio}>Bio: {user_bio}</p>
-      <a onClick={() => blockUser(user.id)} className={styles.blockButton}>
-        Block
-      </a>
       <p className={styles.userComments}>Comments: placeholder text</p>
-      <a onClick={() => suspendUser(user.id)} className={styles.suspendButton}>
-        Suspend
-      </a>
+      <div className={styles.btns}>
+        <a
+          onClick={() => blockUser(user.id)}
+          style={{ backgroundColor: "red" }}
+          className={styles.blockButton}
+        >
+          Block
+        </a>
+        <a
+          onClick={() => suspendUser(user.id)}
+          style={{ backgroundColor: "darkorange" }}
+          className={styles.suspendButton}
+        >
+          Suspend
+        </a>
+      </div>
     </div>
   );
 }
