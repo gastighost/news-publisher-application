@@ -1,0 +1,54 @@
+.userCard {
+  border-radius: 15px;
+  border: 1px solid white;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.userCard * {
+  text-align: center;
+  padding: 5px;
+  margin: 0 auto;
+
+}
+.userAvatar {
+  width: 30%;
+  margin-top: 10px;
+}
+
+.userBio {
+  margin: 0 10px;
+}
+
+.btns {
+  display: flex;
+  justify-content: flex-end;
+  align-items: right;
+  margin: 5px;
+}
+
+.btns a {
+  margin: 5px;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+/* Main admin page */
+.mainUsers {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.main {
+  margin: 0 auto;
+  padding: 20px;
+}
+
+@media screen and (max-width: 600px){
+  .main {
+    padding: 30px;
+  }
+
+}
