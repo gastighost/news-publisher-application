@@ -1,8 +1,10 @@
-import app from "./app";
 import dotenv from "dotenv";
 import { env } from "./utils/validateEnv";
 
 dotenv.config();
+
+import app from "./app";
+
 
 const PORT = env.PORT;
 

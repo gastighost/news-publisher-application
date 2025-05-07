@@ -8,8 +8,17 @@
     "start": "next start",
     "lint": "next lint"
   },
+  "prisma": {
+    "schema": "./src/prisma/schema.prisma"
+  },
   "dependencies": {
+<<<<<<< HEAD
     "next": "15.3.1",
+=======
+    "@prisma/client": "^6.7.0",
+    "next": "15.3.1",
+    "prisma": "^6.7.0",
+>>>>>>> f644a8e (Added frontend SSR + some part of infinite scrolling. Updated database and added some minor changes into code)
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },

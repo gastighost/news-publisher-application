@@ -14,7 +14,7 @@ describe("GoogleStrategy verify function", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    jest.spyOn(console, "error").mockImplementation(() => {}); // Suppress console.error
+    jest.spyOn(console, "error").mockImplementation(() => {}); 
   });
 
   it("should handle errors during database operations", async () => {
