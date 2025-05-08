@@ -13,30 +13,41 @@ import {
 const router = Router();
 
 router.get("/", async (req: Request, res: Response) => {
-  const posts = await prisma.post.findMany({
-    where: { approved: true },
-    orderBy: { date: "desc" },
-    select: {
-      id: true,
-      title: true,
-      subtitle: true,
-      titleImage: true,
-      content: true,
-      date: true,
-      author: {
-        select: {
-          id: true,
-          firstName: true,
-          lastName: true,
+  const offset = parseInt(req.query.offset as string) || 0;
+  const limit = parseInt(req.query.limit as string) || 5; 
+
+  try {
+    const posts = await prisma.post.findMany({
+      where: { approved: true },
+      orderBy: { date: "desc" },
+      skip: offset,
+      take: limit,
+      select: {
+        id: true,
+        title: true,
+        subtitle: true,
+        titleImage: true,
+        content: true, 
+        category: true,
+        date: true,
+        author: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+          },
         },
       },
-    },
-  });
+    });
 
-  res.status(200).json({
-    message: "Posts fetched successfully",
-    posts,
-  });
+    res.status(200).json({
+      message: "Posts fetched successfully",
+      posts,
+    });
+  } catch (error) {
+    console.error("Error fetching posts:", error);
+    res.status(500).json({ message: "Failed to fetch posts" });
+  }
 });
 
 router.get("/:postId", async (req: Request, res: Response) => {
@@ -55,6 +66,7 @@ router.get("/:postId", async (req: Request, res: Response) => {
       subtitle: true,
       titleImage: true,
       content: true,
+      category: true,
       date: true,
       updatedDate: true,
       commentsEnabled: true,
@@ -106,14 +118,6 @@ router.get("/:postId", async (req: Request, res: Response) => {
     .json({ message: "Post successfully retrieved.", post: postWithLikeCount });
 });
 
-/**
- * @route POST /:postId/comments
- * @description Add a comment to a specific post
- * @access Authenticated users
- * @param {number} postId - The ID of the post to comment on
- * @body {string} comment - The content of the comment
- * @returns {Object} - The newly created comment
- */
 router.post(
   "/:postId/comments",
   requireAuth,

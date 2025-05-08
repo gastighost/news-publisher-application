@@ -1,0 +1,176 @@
+.postContainer {
+    display: flex;
+    align-items: flex-start;
+    gap: 30px;
+    margin-bottom: 40px;
+    padding: 20px;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    max-width: 1372px;
+    margin-left: auto;
+    margin-right: auto;
+    border-radius: 8px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.imageWrapper {
+    flex-shrink: 0;
+}
+
+.postImage {
+    width: 558px;
+    height: 427px;
+    object-fit: cover;
+    display: block;
+    border-radius: 4px;
+}
+
+.imagePlaceholder {
+    width: 558px;
+    height: 427px;
+    background-color: var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--secondary-text-color);
+    font-family: var(--font-saira);
+    font-size: 16px;
+    border-radius: 4px;
+}
+
+.postTextContent {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    min-height: 427px;
+    justify-content: space-between;
+}
+
+.postSubtitle {
+    font-family: var(--font-saira), sans-serif;
+    font-size: 18px;
+    font-weight: normal;
+    line-height: 1.5;
+    color: var(--subtitle-text-color);
+    margin-bottom: 15px;
+}
+
+.postTitle {
+    font-family: var(--font-open-sans-hebrew), sans-serif;
+    font-size: 45px;
+    font-style: italic;
+    font-weight: normal;
+    line-height: 1.2;
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: var(--text-color);
+}
+
+.postBody {
+    font-family: var(--font-saira), sans-serif;
+    font-size: 20px;
+    font-weight: normal;
+    line-height: 1.6;
+    margin-bottom: 15px;
+    color: var(--subtitle-text-color);
+    flex-grow: 1;
+}
+
+.postFooter {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-top: auto;
+}
+
+.postMeta {
+    font-family: var(--font-saira), sans-serif;
+    font-size: 22px;
+    font-weight: normal;
+    color: var(--secondary-text-color);
+    margin-bottom: 0;
+}
+
+.moreButton {
+    font-family: var(--font-open-sans-hebrew), sans-serif;
+    font-size: 18px;
+    font-weight: normal;
+    color: var(--text-color);
+    background-color: transparent;
+    border: 1px solid var(--text-color);
+    width: 162px;
+    height: 36px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+}
+
+.moreButton:hover {
+    background-color: var(--text-color);
+    color: var(--background-color);
+}
+
+@media (max-width: 1024px) {
+    .postContainer {
+        flex-direction: column;
+        align-items: center;
+        max-width: 95%;
+        padding: 15px;
+    }
+
+    .postImage,
+    .imagePlaceholder {
+        width: 100%;
+        max-width: 558px;
+        height: auto;
+        margin-bottom: 20px;
+    }
+
+    .postTextContent {
+        min-height: auto;
+        align-items: center;
+        text-align: center;
+        width: 100%;
+    }
+
+    .postTitle {
+        font-size: 36px;
+    }
+
+    .postBody {
+        font-size: 18px;
+        max-width: 90%;
+    }
+
+    .postMeta {
+        font-size: 18px;
+    }
+
+    .moreButton {
+        align-self: center;
+    }
+}
+
+@media (max-width: 768px) {
+    .postTitle {
+        font-size: 28px;
+    }
+
+    .postBody {
+        font-size: 16px;
+    }
+
+    .postMeta {
+        font-size: 16px;
+    }
+
+    .moreButton {
+        font-size: 16px;
+        padding: 7px 18px;
+    }
+}
