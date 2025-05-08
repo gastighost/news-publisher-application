@@ -1,16 +1,31 @@
 import prisma from "@/prisma/prisma_config";
 import styles from "./page.module.css";
 
+import ScrollPosts from "../components/scroll/ScrollPosts"
+
 export default async function Home() {
-  const posts = await prisma.post.findMany(
-    {
-    // where: { // have to remove after testing
-    //   approved: true,
-    // },
-    include: {
-      author: true,
+
+  const posts = await prisma.post.findMany({
+    where: { approved: true },
+    orderBy: { date: "desc" },
+    select: {
+      id: true,
+      title: true,
+      subtitle: true,
+      titleImage: true,
+      content: true,
+      category: true,
+      date: true,
+      author: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+        },
+      },
     },
   }
+
 );
 
   // console.log(posts) 
@@ -142,6 +157,12 @@ export default async function Home() {
           );
         })}
       </section>
+
+      <section className={styles.infiniteScrollSection}>
+        <h2 className={styles.sectionTitle}>More Articles</h2>
+        <ScrollPosts initialPosts={posts.slice(8) as unknown as []} />
+      </section>
+
     </div>
   );
 }

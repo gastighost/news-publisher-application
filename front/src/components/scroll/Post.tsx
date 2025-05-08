@@ -1,54 +1,59 @@
-'use-client'
-import React from "react"
-import { useState, useEffect } from "react"
+"use client"
+import React from "react";
+import Image from "next/image";
+import { Post as PostType } from "../../types/post";
+import styles from "./Post.module.css";
 
-import type { Post } from "../../types/post";
+export default function One_Post({ post }: { post: PostType }) {
+  const formattedDate = new Date(post.date).toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
 
-import styles from "./ScrollPosts.module.css"
+  const getAuthorName = (author: PostType["author"]): string => {
+    if (!author) return "Unknown Author";
+    const nameParts = [author.firstName, author.lastName].filter(Boolean);
+    return nameParts.join(" ") || "Unknown Author";
+  };
 
-export default async function Post({ post }: { post: Post }) {
-    // Helper to format author's name
-    const getAuthorDisplayName = () => {
-        if (!post.author) {
-            return "Unknown Author";
-        }
-        const { firstName, lastName } = post.author;
-        const nameParts = [firstName, lastName].filter(Boolean);
-        return nameParts.join(" ") || "Unknown Author";
-    };
+  const displayContent = post.content.length > 350 
+    ? post.content.substring(0, 347) + "..." 
+    : post.content;
 
-    const authorDisplayName = getAuthorDisplayName();
-
-    // Format date
-    const formattedDate = new Date(post.date).toLocaleDateString('en-US', {
-        month: 'long',
-        day: 'numeric',
-        year: 'numeric',
-    });
-
-    return (
-        <div className={styles.postItemContainer}> {}
-            {post.titleImage && (
-                <div className={styles.postImageContainer}>
-                    <img 
-                        src={post.titleImage} 
-                        alt={`Image for ${post.title}`} 
-                        className={styles.postImage} 
-                    />
-                </div>
-            )}
-            <div className={styles.postTextContent}>
-                <h2 className={styles.postTitle}>{post.title}</h2>
-                <p className={styles.postDescription}>{post.content}</p>
-                <div className={styles.postMeta}>
-                    {post.category && <span className={styles.postCategory}>{post.category}</span>}
-                    {post.category && authorDisplayName !== "Unknown Author" && <span className={styles.metaSeparator}> | </span>}
-                    {authorDisplayName !== "Unknown Author" && <span className={styles.postAuthor}>{authorDisplayName}</span>}
-                    {(post.category || authorDisplayName !== "Unknown Author") && <span className={styles.metaSeparator}> | </span>}
-                    <span className={styles.postDate}>{formattedDate}</span>
-                </div>
-                <button className={styles.moreButton}>More</button>
-            </div>
+  return (
+    <article className={styles.postContainer}>
+      <div className={styles.imageWrapper}>
+        {post.titleImage ? (
+          <Image
+            src={post.titleImage}
+            alt={post.title}
+            width={558}
+            height={427}
+            className={styles.postImage}
+            priority
+          />
+        ) : (
+          <div className={styles.imagePlaceholder}>
+            <span>Image Not Available</span>
+          </div>
+        )}
+      </div>
+      <div className={styles.postTextContent}>
+        <div>
+          <h2 className={styles.postTitle}>{post.title}</h2>
+          {post.subtitle && (
+            <p className={styles.postSubtitle}>{post.subtitle}</p>
+          )}
+          <p className={styles.postBody}>{displayContent}</p>
         </div>
-    );
+        <div className={styles.postFooter}>
+          <p className={styles.postMeta}>
+            {post.category || "General"} | {getAuthorName(post.author)} | {formattedDate}
+          </p>
+          <button className={styles.moreButton}>More</button>
+        </div>
+      </div>
+    </article>
+  );
 }
