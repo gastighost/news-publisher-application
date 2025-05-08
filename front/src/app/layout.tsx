@@ -18,9 +18,6 @@ export const metadata: Metadata = {
   keywords: ["news", "articles", "publishing"],
 };
 
-
-
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -28,7 +25,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body >
+      <body suppressHydrationWarning={true}>
         {children}
       </body>
     </html>
