@@ -11,6 +11,9 @@ import prisma from "../prisma/prisma_config";
 
 beforeAll(async () => {
   await prisma.$connect();
+  await prisma.postLike.deleteMany();
+  await prisma.postComment.deleteMany();
+  await prisma.post.deleteMany();
   await prisma.user.deleteMany();
 });
 
@@ -110,7 +113,7 @@ describe("User Service Integration Tests", () => {
       where: { email: testUser.email },
     });
 
-    expect(user!.password).not.toBe(testUser.password); // Ensure password is hashed
+    expect(user!.password).not.toBe(testUser.password);
     const isPasswordValid = await loginUser(testUser.email, testUser.password);
     expect(isPasswordValid).toBeTruthy();
   });

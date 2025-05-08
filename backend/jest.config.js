@@ -8,4 +8,5 @@ module.exports = {
     "^.+\\.tsx?$": "ts-jest",
   },
   verbose: true,
+  maxWorkers: 1,
 };
