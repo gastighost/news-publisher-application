@@ -12,9 +12,12 @@
     "schema": "./src/prisma/schema.prisma"
   },
   "dependencies": {
+    "@cloudinary/react": "^1.14.1",
+    "@cloudinary/url-gen": "^1.21.0",
     "@prisma/client": "^6.7.0",
     "axios": "^1.9.0",
     "next": "15.3.1",
+    "next-cloudinary": "^6.16.0",
     "prisma": "^6.7.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"

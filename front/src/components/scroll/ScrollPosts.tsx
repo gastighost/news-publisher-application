@@ -25,7 +25,7 @@ export default function ScrollPosts({ initialPosts = [] }: { initialPosts?: Post
     });
     
     const [offset, setOffset] = useState<number>(posts.length);
-    const [hasMore, setHasMore] = useState<boolean>(posts.length >= INITIAL_POST_COUNT_FROM_SSR || posts.length === 0); 
+    const [hasMore, setHasMore] = useState<boolean>(true); // Initialize to true
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
     const observer = useRef<IntersectionObserver | null>(null);
@@ -90,10 +90,12 @@ export default function ScrollPosts({ initialPosts = [] }: { initialPosts?: Post
 
     
     useEffect(() => {
+        // If there are no initial posts from SSR, and no posts loaded yet,
+        // and we believe there might be more (hasMore is initially true),
+        // and we're not already loading, and we have a backend link,
+        // then try to load the first set of posts.
         if (initialPosts.length === 0 && posts.length === 0 && hasMore && !isLoading && backendLink) {
-            
-            
-            
+            loadMorePosts();
         }
     }, [initialPosts, posts, hasMore, isLoading, loadMorePosts, backendLink]);
 
