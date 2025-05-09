@@ -1,17 +1,80 @@
 .main{
   display: grid;
-  grid-template-columns: 3fr 7fr;
+  grid-template-columns: 3.5fr 6.5fr;
   border: 1px solid gray;
   border-radius: 5px;
-  margin: 10px;
+  margin: 15px;
   gap: 20px;
 }
 
-#upload {
-  margin: 0 auto;
+#left {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  gap: 10px;
+  margin-left: 10px;
+  margin-bottom: 10px;
 }
 
-@media screen and (max-width: 400px)  {
+#upload {
+  aspect-ratio: 3 / 2; /* Maintain aspect ratio */
+  background-image: url("/placeholder.jpg");
+  background-size: cover;
+  background-position: center;
+  width: 100%; /* Allow it to adapt to the grid */
+  height: auto; /* Maintain aspect ratio */
+  margin: 10px;
+
+}
+
+.buttons {
+  display: flex;
+  flex-direction: row;
+  justify-content: left;
+  gap: 10px;
+}
+
+.btn {
+  border: none;
+  border-radius: 5px;
+  text-align: center;
+  cursor: pointer;
+  color: white;
+  padding: 10px 20px;
+  font-weight: bold;
+}
+
+.titleInput {
+  width:80%;
+  margin: 10px;
+  background-color: transparent;
+  border: none;
+}
+
+.titleInput:focus {
+  border: 1px solid white;
+  border-radius: 5px;
+}
+
+.titleInput[type="text"], .titleInput[type="text"]::placeholder {
+  color: inherit;
+  font-family: inherit;
+  font-weight: bold;
+}
+
+
+#editor {
+  width: 90%;
+  margin: 10px;
+  display: block;
+  border: none;
+  border: 1px solid white;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+@media screen and (max-width: 600px)  {
   .main {
     display: block;
   }
