@@ -1,16 +1,45 @@
 import prisma from "@/prisma/prisma_config";
 import styles from "./page.module.css";
 
+import ScrollPosts from "../components/scroll/ScrollPosts"
+
+import image1 from "../fake_image_db/pexels-abeysaksham-31701587.jpg";
+import image2 from "../fake_image_db/pexels-alinaskazka-31551090.jpg";
+import image3 from "../fake_image_db/pexels-apasaric-618079.jpg";
+import image4 from "../fake_image_db/pexels-camcasey-1722183.jpg";
+import image5 from "../fake_image_db/pexels-dr-failov-2151930529-31984777.jpg";
+import image6 from "../fake_image_db/pexels-ingewallu-177809.jpg";
+import image7 from "../fake_image_db/pexels-pixabay-160755.jpg";
+import image8 from "../fake_image_db/pexels-sarah-deal-1194085-2418479.jpg";
+import image9 from "../fake_image_db/pexels-pixabay-76964.jpg";
+
+const localImages = [image1, image2, image3, image4, image5, image6, image7, image8, image9];
+
 export default async function Home() {
-  const posts = await prisma.post.findMany(
-    {
-    // where: { // have to remove after testing
-    //   approved: true,
-    // },
-    include: {
-      author: true,
+
+
+
+  const posts = await prisma.post.findMany({
+    where: { approved: true },
+    orderBy: { date: "desc" },
+    select: {
+      id: true,
+      title: true,
+      subtitle: true,
+      titleImage: true,
+      content: true,
+      category: true,
+      date: true,
+      author: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+        },
+      },
     },
   }
+
 );
 
   // console.log(posts) 
@@ -49,15 +78,11 @@ export default async function Home() {
               </p>
               <div className={styles.meta}>{`${posts[0].category || "General"} | ${getAuthorName(posts[0].author)} | ${new Date(posts[0].date).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}`}</div>
             </div>
-            {posts[0].titleImage ? (
-              <img
-                src={posts[0].titleImage}
-                alt={posts[0].title}
-                className={styles.featuredImagePlaceholder}
-              />
-            ) : (
-              <div className={styles.featuredImagePlaceholder}></div>
-            )}
+            <img
+              src={localImages[0 % localImages.length].src}
+              alt={posts[0].title}
+              className={styles.featuredImagePlaceholder}
+            />
           </section>
         ) : (
           <section className={styles.featuredSection}>
@@ -70,7 +95,7 @@ export default async function Home() {
         )}
 
         <aside className={styles.sidebar}>
-          {posts.slice(1, 4).map((post) => {
+          {posts.slice(1, 4).map((post, idx) => {
             const formattedDate = new Date(post.date).toLocaleDateString(
               "en-US",
               {
@@ -83,18 +108,15 @@ export default async function Home() {
               }
             );
             const authorDisplayName = getAuthorName(post.author);
+            const imageIndex = (idx + 1) % localImages.length; // +1 because we used index 0 for featured post
 
             return (
               <div key={post.id} className={styles.sidebarArticle}>
-                {post.titleImage ? (
-                  <img
-                    src={post.titleImage}
-                    alt={post.title}
-                    className={styles.sidebarImagePlaceholder}
-                  />
-                ) : (
-                  <div className={styles.sidebarImagePlaceholder}></div>
-                )}
+                <img
+                  src={localImages[imageIndex].src}
+                  alt={post.title}
+                  className={styles.sidebarImagePlaceholder}
+                />
                 <div className={styles.sidebarText}>
                   <div className={styles.meta}>
                     {`${post.category || "General"} | ${authorDisplayName} | ${formattedDate}`}
@@ -142,6 +164,12 @@ export default async function Home() {
           );
         })}
       </section>
+
+      <section className={styles.infiniteScrollSection}>
+        <h2 className={styles.sectionTitle}>More Articles</h2>
+        <ScrollPosts initialPosts={posts.slice(8) as unknown as []} />
+      </section>
+
     </div>
   );
 }
