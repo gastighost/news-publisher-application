@@ -1,0 +1,182 @@
+import { Role } from "@prisma/client";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
+
+import {
+  getAllPosts,
+  getApprovedPostById,
+  addCommentToPost,
+  updateComment,
+  deleteComment,
+  createPost,
+  updatePostStatus,
+  deletePost,
+} from "./postService";
+import { CustomError } from "../errors/CustomError";
+
+import prisma from "../prisma/prisma_config";
+
+beforeAll(async () => {
+  await prisma.$connect();
+
+  await prisma.postLike.deleteMany();
+  await prisma.postComment.deleteMany();
+  await prisma.post.deleteMany();
+  await prisma.user.deleteMany();
+
+  await prisma.user.create({
+    data: {
+      email: "testuser@example.com",
+      username: "testuser",
+      password: "hashedpassword",
+      firstName: "Test",
+      lastName: "User",
+      type: Role.READER,
+    },
+  });
+});
+
+afterAll(async () => {
+  await prisma.$disconnect();
+});
+
+describe("Post Service Integration Tests", () => {
+  let testUserId: number;
+  let testPostId: number;
+
+  beforeEach(async () => {
+    // Fetch the test user ID
+    const user = await prisma.user.findFirst({
+      where: { email: "testuser@example.com" },
+    });
+    testUserId = user!.id;
+
+    const post = await createPost(testUserId, {
+      title: "Test Post",
+      subtitle: "Test Subtitle",
+      content: "This is a test post.",
+      titleImage: "https://example.com/image.png",
+      commentsEnabled: true,
+    });
+    await updatePostStatus(post.id, true);
+    testPostId = post.id;
+  });
+
+  afterEach(async () => {
+    // Clear all dependent records after each test
+    await prisma.postLike.deleteMany();
+    await prisma.postComment.deleteMany();
+    await prisma.post.deleteMany();
+  });
+
+  test("should fetch all approved posts", async () => {
+    const posts = await getAllPosts(0, 10);
+
+    expect(posts.length).toBeGreaterThan(0);
+    expect(posts[0]).toHaveProperty("id");
+    expect(posts[0]).toHaveProperty("title");
+  });
+
+  test("should fetch a single approved post by ID", async () => {
+    const post = await getApprovedPostById(testPostId);
+
+    expect(post).toHaveProperty("id", testPostId);
+    expect(post).toHaveProperty("title", "Test Post");
+    expect(post).toHaveProperty("likeCount", 0);
+  });
+
+  test("should throw error for non-existent post ID", async () => {
+    await expect(getApprovedPostById(9999)).rejects.toThrow(CustomError);
+  });
+
+  test("should add a comment to a post", async () => {
+    const comment = await addCommentToPost(
+      testPostId,
+      testUserId,
+      "This is a test comment."
+    );
+
+    expect(comment).toHaveProperty("id");
+    expect(comment).toHaveProperty("comment", "This is a test comment.");
+  });
+
+  test("should update a comment", async () => {
+    const comment = await addCommentToPost(
+      testPostId,
+      testUserId,
+      "Another comment."
+    );
+    const updatedComment = await updateComment(
+      testUserId,
+      comment.id,
+      "Updated comment."
+    );
+
+    expect(updatedComment).toHaveProperty("id", comment.id);
+    expect(updatedComment).toHaveProperty("comment", "Updated comment.");
+  });
+
+  test("should throw error when updating a non-existent comment", async () => {
+    await expect(
+      updateComment(testUserId, 9999, "Invalid update")
+    ).rejects.toThrow(CustomError);
+  });
+
+  test("should delete a comment", async () => {
+    const comment = await addCommentToPost(
+      testPostId,
+      testUserId,
+      "Comment to delete."
+    );
+    await deleteComment(comment.id, testUserId);
+
+    const deletedComment = await prisma.postComment.findUnique({
+      where: { id: comment.id },
+    });
+    expect(deletedComment).toBeNull();
+  });
+
+  test("should throw error when deleting a non-existent comment", async () => {
+    await expect(deleteComment(9999, testUserId)).rejects.toThrow(CustomError);
+  });
+
+  test("should create a new post", async () => {
+    const newPost = await createPost(testUserId, {
+      title: "New Test Post",
+      content: "This is another test post.",
+    });
+
+    expect(newPost).toHaveProperty("id");
+    expect(newPost).toHaveProperty("title", "New Test Post");
+  });
+
+  test("should update post approval status", async () => {
+    const post = await createPost(testUserId, {
+      title: "Post to Approve",
+      content: "This post needs approval.",
+    });
+
+    const updatedPost = await updatePostStatus(post.id, true);
+
+    expect(updatedPost).toHaveProperty("approved", true);
+  });
+
+  test("should delete a post", async () => {
+    const post = await createPost(testUserId, {
+      title: "Post to Delete",
+      content: "This post will be deleted.",
+    });
+
+    await deletePost(post.id);
+
+    const deletedPost = await prisma.post.findUnique({
+      where: { id: post.id },
+    });
+    expect(deletedPost).toBeNull();
+  });
+
+  test("should throw error when deleting a non-existent post", async () => {
+    await expect(deletePost(9999)).rejects.toThrow(
+      PrismaClientKnownRequestError
+    );
+  });
+});

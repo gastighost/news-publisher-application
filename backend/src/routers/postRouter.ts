@@ -2,43 +2,32 @@ import { Router } from "express";
 import { Role } from "@prisma/client";
 import { Request, Response } from "express";
 
-import prisma from "../prisma/prisma_config";
 import { requireAuth, requireRole } from "../auth/passportAuth";
 import {
   commentInputSchema,
   postInputSchema,
   postUpdateStatusSchema,
 } from "../validations/postValidations";
+import {
+  addCommentToPost,
+  createPost,
+  deleteComment,
+  deletePost,
+  getAllPosts,
+  getApprovedPostById,
+  updateComment,
+  updatePostStatus,
+} from "../services/postService";
+import { CustomError } from "../errors/CustomError";
 
 const router = Router();
 
 router.get("/", async (req: Request, res: Response) => {
   const offset = parseInt(req.query.offset as string) || 0;
-  const limit = parseInt(req.query.limit as string) || 5; 
+  const limit = parseInt(req.query.limit as string) || 5;
 
   try {
-    const posts = await prisma.post.findMany({
-      where: { approved: true },
-      orderBy: { date: "desc" },
-      skip: offset,
-      take: limit,
-      select: {
-        id: true,
-        title: true,
-        subtitle: true,
-        titleImage: true,
-        content: true, 
-        category: true,
-        date: true,
-        author: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-          },
-        },
-      },
-    });
+    const posts = await getAllPosts(offset, limit);
 
     res.status(200).json({
       message: "Posts fetched successfully",
@@ -54,64 +43,10 @@ router.get("/:postId", async (req: Request, res: Response) => {
   const postId = parseInt(req.params.postId);
 
   if (isNaN(postId)) {
-    res.status(400).json({ message: "Invalid post ID" });
-    return;
+    throw new CustomError("Invalid post ID", 400);
   }
 
-  const post = await prisma.post.findUnique({
-    where: { id: postId, approved: true },
-    select: {
-      id: true,
-      title: true,
-      subtitle: true,
-      titleImage: true,
-      content: true,
-      category: true,
-      date: true,
-      updatedDate: true,
-      commentsEnabled: true,
-      author: {
-        select: {
-          id: true,
-          firstName: true,
-          lastName: true,
-          avatar: true,
-        },
-      },
-      comments: {
-        select: {
-          id: true,
-          comment: true,
-          date: true,
-          updatedDate: true,
-          user: {
-            select: {
-              id: true,
-              firstName: true,
-              lastName: true,
-              username: true,
-              avatar: true,
-            },
-          },
-        },
-      },
-      likes: {
-        select: {
-          id: true,
-        },
-      },
-    },
-  });
-
-  if (!post) {
-    res.status(404).json({ message: "Post not found" });
-    return;
-  }
-
-  const postWithLikeCount = {
-    ...post,
-    likeCount: post.likes.length,
-  };
+  const postWithLikeCount = await getApprovedPostById(postId);
 
   res
     .status(200)
@@ -128,17 +63,10 @@ router.post(
     const userId = req.user?.id;
 
     if (!userId) {
-      res.status(401).json({ message: "User not authenticated" });
-      return;
+      throw new CustomError("User not authenticated", 401);
     }
 
-    const newComment = await prisma.postComment.create({
-      data: {
-        postId,
-        userId,
-        comment,
-      },
-    });
+    const newComment = await addCommentToPost(postId, userId, comment);
 
     res
       .status(201)
@@ -156,30 +84,10 @@ router.patch(
     const userId = req.user?.id;
 
     if (!userId) {
-      res.status(401).json({ message: "User not authenticated" });
-      return;
+      throw new CustomError("User not authenticated", 401);
     }
 
-    const existingComment = await prisma.postComment.findUnique({
-      where: { id: commentId },
-    });
-
-    if (!existingComment) {
-      res.status(404).json({ message: "Comment not found" });
-      return;
-    }
-
-    if (existingComment.userId !== userId) {
-      res
-        .status(403)
-        .json({ message: "You are not authorized to update this comment" });
-      return;
-    }
-
-    const updatedComment = await prisma.postComment.update({
-      where: { id: commentId },
-      data: { comment },
-    });
+    const updatedComment = await updateComment(userId, commentId, comment);
 
     res.status(200).json({
       message: "Comment updated successfully",
@@ -198,29 +106,10 @@ router.delete(
     const userRole = req.user?.type;
 
     if (!userId) {
-      res.status(401).json({ message: "User not authenticated" });
-      return;
+      throw new CustomError("User not authenticated", 401);
     }
 
-    const existingComment = await prisma.postComment.findUnique({
-      where: { id: commentId },
-    });
-
-    if (!existingComment) {
-      res.status(404).json({ message: "Comment for deletion not found" });
-      return;
-    }
-
-    if (existingComment.userId !== userId && userRole !== Role.ADMIN) {
-      res
-        .status(403)
-        .json({ message: "You are not authorized to delete this comment" });
-      return;
-    }
-
-    await prisma.postComment.delete({
-      where: { id: commentId },
-    });
+    await deleteComment(commentId, userId, userRole);
 
     res.status(200).json({ message: "Comment deleted successfully" });
   }
@@ -240,16 +129,7 @@ router.post(
       return;
     }
 
-    const newPost = await prisma.post.create({
-      data: {
-        title: postInput.title,
-        subtitle: postInput.subtitle ?? null,
-        content: postInput.content,
-        titleImage: postInput.titleImage ?? null,
-        commentsEnabled: postInput.commentsEnabled ?? true,
-        authorId: userId,
-      },
-    });
+    const newPost = await createPost(userId, postInput);
 
     res
       .status(201)
@@ -265,10 +145,7 @@ router.patch(
     const postId = parseInt(req.params.postId);
     const { approved } = postUpdateStatusSchema.parse(req.body);
 
-    const updatedPost = await prisma.post.update({
-      where: { id: postId },
-      data: { approved },
-    });
+    const updatedPost = await updatePostStatus(postId, approved);
 
     res.status(200).json({
       message: `Post ${approved ? "approved" : "rejected"} successfully`,
@@ -284,9 +161,7 @@ router.delete(
   async (req: Request, res: Response) => {
     const postId = parseInt(req.params.postId);
 
-    await prisma.post.delete({
-      where: { id: postId },
-    });
+    await deletePost(postId);
 
     res.status(200).json({ message: "Post deleted successfully" });
   }

@@ -1,8 +1,6 @@
 import { Router, Request, Response } from "express";
-import bcrypt from "bcrypt";
 import { Role } from "@prisma/client";
 
-import prisma from "../prisma/prisma_config";
 import { env } from "../utils/validateEnv";
 import passport from "../auth/passportAuth";
 import { requireAuth, requireRole } from "../auth/passportAuth";
@@ -11,28 +9,19 @@ import {
   loginInputSchema,
   updateUserStatusSchema,
 } from "../validations/userValidations";
+import {
+  getUsers,
+  loginUser,
+  registerUser,
+  updateUserStatus,
+} from "../services/userService";
 
 const router = Router();
 
 router.post("/register", async (req: Request, res: Response) => {
   const userInput = userInputSchema.parse(req.body);
 
-  const existingUser = await prisma.user.findFirst({
-    where: {
-      OR: [{ email: userInput.email }, { username: userInput.username }],
-    },
-  });
-
-  if (existingUser) {
-    res.status(400).json({ message: "Email or username already in use." });
-    return;
-  }
-
-  const hashedPassword = await bcrypt.hash(userInput.password, 12);
-
-  const newUser = await prisma.user.create({
-    data: { ...userInput, password: hashedPassword },
-  });
+  const newUser = await registerUser(userInput);
 
   res.status(201).json({ message: "Registered a new user!", newUser });
 });
@@ -40,19 +29,7 @@ router.post("/register", async (req: Request, res: Response) => {
 router.post("/login", async (req: Request, res: Response) => {
   const { email, password } = loginInputSchema.parse(req.body);
 
-  const user = await prisma.user.findUnique({ where: { email } });
-
-  if (!user) {
-    res.status(401).json({ message: "Invalid credentials." });
-    return;
-  }
-
-  const isPasswordValid = await bcrypt.compare(password, user.password);
-
-  if (!isPasswordValid) {
-    res.status(401).json({ message: "Invalid credentials." });
-    return;
-  }
+  await loginUser(email, password);
 
   res.status(200).json({ message: "Login successful!" });
 });
@@ -86,23 +63,9 @@ router.get(
   requireAuth,
   requireRole([Role.ADMIN]),
   async (req, res) => {
-    const users = await prisma.user.findMany({
-      select: {
-        id: true,
-        email: true,
-        username: true,
-        firstName: true,
-        lastName: true,
-        bio: true,
-        avatar: true,
-        type: true,
-        registrationDate: true,
-        lastLoginDate: true,
-        userStatus: true,
-      },
-    });
+    const users = await getUsers();
 
-    res.status(200).json(users);
+    res.status(200).json({ users });
   }
 );
 
@@ -114,18 +77,7 @@ router.patch(
     const { userId } = req.params;
     const { userStatus } = updateUserStatusSchema.parse(req.body);
 
-    const updatedUser = await prisma.user.update({
-      where: { id: parseInt(userId, 10) },
-      data: { userStatus },
-      select: {
-        id: true,
-        email: true,
-        username: true,
-        firstName: true,
-        lastName: true,
-        userStatus: true,
-      },
-    });
+    const updatedUser = await updateUserStatus(parseInt(userId), userStatus);
 
     res.status(200).json({
       message: `User status updated to ${userStatus}.`,
