@@ -1,25 +1,28 @@
-import prisma from "@/prisma/prisma_config";
-import styles from "./page.module.css";
+import prisma from "@/prisma/prisma_config"
+import styles from "./page.module.css"
 
 import ScrollPosts from "../components/scroll/ScrollPosts"
+import { Post as PostType } from "@/types/post"
+import { Author as AuthorType } from "@/types/author"
 
-import image1 from "../fake_image_db/pexels-abeysaksham-31701587.jpg";
-import image2 from "../fake_image_db/pexels-alinaskazka-31551090.jpg";
-import image3 from "../fake_image_db/pexels-apasaric-618079.jpg";
-import image4 from "../fake_image_db/pexels-camcasey-1722183.jpg";
-import image5 from "../fake_image_db/pexels-dr-failov-2151930529-31984777.jpg";
-import image6 from "../fake_image_db/pexels-ingewallu-177809.jpg";
-import image7 from "../fake_image_db/pexels-pixabay-160755.jpg";
-import image8 from "../fake_image_db/pexels-sarah-deal-1194085-2418479.jpg";
-import image9 from "../fake_image_db/pexels-pixabay-76964.jpg";
-
-const localImages = [image1, image2, image3, image4, image5, image6, image7, image8, image9];
+import { Cloudinary } from "@cloudinary/url-gen"
+import { auto } from "@cloudinary/url-gen/actions/resize"
+import { autoGravity } from "@cloudinary/url-gen/qualifiers/gravity"
+import { format, quality } from "@cloudinary/url-gen/actions/delivery"
 
 export default async function Home() {
+  console.log(
+    "Cloudinary Cloud Name:",
+    process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
+  )
 
+  const cld = new Cloudinary({
+    cloud: {
+      cloudName: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
+    }
+  })
 
-
-  const posts = await prisma.post.findMany({
+  const rawPosts = await prisma.post.findMany({
     where: { approved: true },
     orderBy: { date: "desc" },
     select: {
@@ -30,27 +33,95 @@ export default async function Home() {
       content: true,
       category: true,
       date: true,
+      authorId: true,
+      updatedDate: true,
+      commentsEnabled: true,
+      lastUpdate: true,
+      approved: true,
       author: {
         select: {
           id: true,
           firstName: true,
           lastName: true,
-        },
-      },
-    },
+          email: true,
+          username: true,
+          bio: true,
+          avatar: true,
+          type: true,
+          registrationDate: true,
+          lastLoginDate: true,
+          userStatus: true
+        }
+      }
+    }
+  })
+
+  const posts: PostType[] = rawPosts.map((p) => {
+    const authorData = p.author
+    return {
+      id: p.id,
+      title: p.title,
+      subtitle: p.subtitle,
+      titleImage: p.titleImage,
+      content: p.content,
+      category: p.category ?? "General",
+      date: p.date.toISOString(),
+      authorId: p.authorId,
+      updatedDate: p.updatedDate ? p.updatedDate.toISOString() : null,
+      commentsEnabled: p.commentsEnabled,
+      lastUpdate: p.lastUpdate ? p.lastUpdate.toISOString() : null,
+      approved: p.approved,
+      author: {
+        id: authorData.id,
+        firstName: authorData.firstName,
+        lastName: authorData.lastName,
+        email: authorData.email,
+        username: authorData.username,
+        bio: authorData.bio,
+        avatar: authorData.avatar,
+        type: authorData.type,
+        registrationDate: authorData.registrationDate.toISOString(),
+        lastLoginDate: authorData.lastLoginDate
+          ? authorData.lastLoginDate.toISOString()
+          : null,
+        userStatus: authorData.userStatus
+      } as AuthorType
+    }
+  })
+
+  const getAuthorName = (
+    author: AuthorType | null | undefined
+  ): string => {
+    if (!author) {
+      return "Unknown Author"
+    }
+    const nameParts = [author.firstName, author.lastName].filter(Boolean)
+    return nameParts.join(" ") || "Unknown Author"
   }
 
-);
-
-  // console.log(posts) 
-
-  const getAuthorName = (author: typeof posts[0]["author"] | null | undefined): string => {
-    if (!author) {
-      return "Unknown Author";
-    }
-    const nameParts = [author.firstName, author.lastName].filter(Boolean);
-    return nameParts.join(" ") || "Unknown Author";
-  };
+  const initialPostsForScroll: PostType[] = posts
+    .slice(8)
+    .map((p) => {
+      let generatedImageUrl: string | null = null
+      if (p.titleImage) {
+        try {
+          generatedImageUrl = cld
+            .image(p.titleImage)
+            .resize(
+              auto().gravity(autoGravity()).width(558).height(314)
+            )
+            .delivery(format("auto"))
+            .delivery(quality("auto"))
+            .toURL()
+        } catch (e) {
+          console.error(
+            `Failed to generate Cloudinary URL for public ID ${p.titleImage}:`,
+            e
+          )
+        }
+      }
+      return { ...p, imageUrl: generatedImageUrl }
+    })
 
   return (
     <div className={styles.container}>
@@ -76,13 +147,43 @@ export default async function Home() {
                   posts[0].content.substring(0, 200) +
                     (posts[0].content.length > 200 ? "..." : "")}
               </p>
-              <div className={styles.meta}>{`${posts[0].category || "General"} | ${getAuthorName(posts[0].author)} | ${new Date(posts[0].date).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}`}</div>
+              <div className={styles.meta}>
+                {`${posts[0].category || "General"} | ${getAuthorName(
+                  posts[0].author
+                )} | ${new Date(posts[0].date).toLocaleDateString(
+                  "en-US",
+                  {
+                    month: "long",
+                    day: "numeric",
+                    year: "numeric"
+                  }
+                )}`}
+              </div>
             </div>
-            <img
-              src={localImages[0 % localImages.length].src}
-              alt={posts[0].title}
-              className={styles.featuredImagePlaceholder}
-            />
+            {posts[0].titleImage ? (
+              (() => {
+                const publicId = posts[0].titleImage!
+                const imageUrl = cld
+                  .image(publicId)
+                  .resize(
+                    auto().gravity(autoGravity()).width(600).height(400)
+                  )
+                  .delivery(format("auto"))
+                  .delivery(quality("auto"))
+                  .toURL()
+                return (
+                  <img
+                    src={imageUrl}
+                    alt={posts[0].title}
+                    className={styles.featuredImagePlaceholder}
+                  />
+                )
+              })()
+            ) : (
+              <div className={styles.featuredImagePlaceholder}>
+                <span>Image not available</span>
+              </div>
+            )}
           </section>
         ) : (
           <section className={styles.featuredSection}>
@@ -95,81 +196,105 @@ export default async function Home() {
         )}
 
         <aside className={styles.sidebar}>
-          {posts.slice(1, 4).map((post, idx) => {
-            const formattedDate = new Date(post.date).toLocaleDateString(
-              "en-US",
-              {
-                month: "long",
-                day: "numeric",
-                year: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-                hour12: false,
-              }
-            );
-            const authorDisplayName = getAuthorName(post.author);
-            const imageIndex = (idx + 1) % localImages.length; // +1 because we used index 0 for featured post
+          {posts.slice(1, 4).map((post) => {
+            const formattedDate = new Date(
+              post.date
+            ).toLocaleDateString("en-US", {
+              month: "long",
+              day: "numeric",
+              year: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: false
+            })
+            const authorDisplayName = getAuthorName(post.author)
+
+            let cloudinaryImageUrl: string | null = null
+            if (post.titleImage) {
+              cloudinaryImageUrl = cld
+                .image(post.titleImage)
+                .resize(
+                  auto().gravity(autoGravity()).width(300).height(200)
+                )
+                .delivery(format("auto"))
+                .delivery(quality("auto"))
+                .toURL()
+            }
 
             return (
-              <div key={post.id} className={styles.sidebarArticle}>
-                <img
-                  src={localImages[imageIndex].src}
-                  alt={post.title}
-                  className={styles.sidebarImagePlaceholder}
-                />
+              <div
+                key={post.id}
+                className={styles.sidebarArticle}
+              >
+                {cloudinaryImageUrl ? (
+                  <img
+                    src={cloudinaryImageUrl}
+                    alt={post.title}
+                    className={styles.sidebarImagePlaceholder}
+                  />
+                ) : (
+                  <div className={styles.sidebarImagePlaceholder}>
+                    <span>Image not available</span>
+                  </div>
+                )}
                 <div className={styles.sidebarText}>
                   <div className={styles.meta}>
                     {`${post.category || "General"} | ${authorDisplayName} | ${formattedDate}`}
                   </div>
                   <h3>{post.title}</h3>
                   {post.subtitle && (
-                    <p className={styles.sidebarSubtitle}>{post.subtitle}</p>
+                    <p className={styles.sidebarSubtitle}>
+                      {post.subtitle}
+                    </p>
                   )}
-                  <div className={styles.meta}>Space | 7 mins read</div>
+                  <div className={styles.meta}>
+                    Space | 7 mins read
+                  </div>
                 </div>
               </div>
-            );
+            )
           })}
         </aside>
       </main>
 
       <section className={styles.bottomSection}>
         {posts.slice(4, 8).map((post) => {
-          const formattedDate = new Date(post.date).toLocaleDateString(
-            "en-US",
-            {
-              month: "long",
-              day: "numeric",
-              year: "numeric",
-              hour: "2-digit",
-              minute: "2-digit",
-              hour12: false,
-            }
-          );
-          const authorDisplayName = getAuthorName(post.author);
-
+          const formattedDate = new Date(
+            post.date
+          ).toLocaleDateString("en-US", {
+            month: "long",
+            day: "numeric",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false
+          })
+          const authorDisplayName = getAuthorName(post.author)
           return (
             <div key={post.id} className={styles.bottomArticle}>
-              <div
-                className={styles.meta}
-              >{`${post.category || "General"} | ${authorDisplayName} | ${formattedDate}`}</div>
-              <h4 className={styles.bottomTitle} >{post.title}</h4>
+              <div className={styles.meta}>
+                {`${post.category || "General"} | ${authorDisplayName} | ${formattedDate}`}
+              </div>
+              <h4 className={styles.bottomTitle}>
+                {post.title}
+              </h4>
               {post.subtitle && (
-                <p className={styles.bottomArticleSubtitle}>{post.subtitle}</p>
+                <p className={styles.bottomArticleSubtitle}>
+                  {post.subtitle}
+                </p>
               )}
               <div className={styles.meta}>
                 Space | {Math.floor(Math.random() * 10) + 5} mins read
               </div>
             </div>
-          );
+          )
         })}
       </section>
 
       <section className={styles.infiniteScrollSection}>
         <h2 className={styles.sectionTitle}>More Articles</h2>
-        <ScrollPosts initialPosts={posts.slice(8) as unknown as []} />
+        <ScrollPosts initialPosts={initialPostsForScroll} />
       </section>
-
     </div>
-  );
+  )
 }

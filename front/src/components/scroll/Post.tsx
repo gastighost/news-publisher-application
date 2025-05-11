@@ -1,37 +1,37 @@
 "use client"
-import React from "react";
-import Image from "next/image";
-import { Post as PostType } from "../../types/post";
-import styles from "./Post.module.css";
+import React from "react"
+import { CldImage } from "next-cloudinary"
+import { Post as PostType } from "../../types/post"
+import styles from "./Post.module.css"
 
 export default function One_Post({ post }: { post: PostType }) {
   const formattedDate = new Date(post.date).toLocaleDateString("en-US", {
     month: "long",
     day: "numeric",
     year: "numeric",
-  });
+  })
 
   const getAuthorName = (author: PostType["author"]): string => {
-    if (!author) return "Unknown Author";
-    const nameParts = [author.firstName, author.lastName].filter(Boolean);
-    return nameParts.join(" ") || "Unknown Author";
-  };
+    if (!author) return "Unknown Author"
+    const nameParts = [author.firstName, author.lastName].filter(Boolean)
+    return nameParts.join(" ") || "Unknown Author"
+  }
 
-  const displayContent = post.content.length > 350 
-    ? post.content.substring(0, 347) + "..." 
-    : post.content;
+  const displayContent =
+    post.content.length > 350
+      ? post.content.substring(0, 347) + "..."
+      : post.content
 
   return (
     <article className={styles.postContainer}>
       <div className={styles.imageWrapper}>
         {post.titleImage ? (
-          <Image
+          <CldImage
             src={post.titleImage}
             alt={post.title}
             width={558}
             height={427}
             className={styles.postImage}
-            priority
           />
         ) : (
           <div className={styles.imagePlaceholder}>
@@ -55,5 +55,5 @@ export default function One_Post({ post }: { post: PostType }) {
         </div>
       </div>
     </article>
-  );
+  )
 }

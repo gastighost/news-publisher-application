@@ -4,7 +4,7 @@ import { Role } from "@prisma/client";
 import dotenv from "dotenv"
 
 const fakeDbPath : string = __dirname + "/fake_db.json"
-dotenv.config({ path: require('path').resolve(__dirname, '../../.env') }); // Adjust path if your .env is elsewhere relative to this script
+dotenv.config({ path: require('path').resolve(__dirname, '../../.env') }); 
 
 
 
