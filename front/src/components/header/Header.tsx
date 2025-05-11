@@ -1,18 +1,20 @@
 import React from 'react';
-import styles from './Header.module.css';
+import Link from 'next/link';
+import styles from "./Header.module.css";
 
 const Header = () => {
   return (
     <header className={styles.header}>
-      <div className={styles.logo}>Vancouver Times</div>
+      <Link href="/" className={styles.logo}>Vancouver Times</Link>
       <nav className={styles.nav}>
-        <a href="#">Home</a>
-        <a href="#">Crypto</a>
-        <a href="#">Vancouver Today</a>
-        <a href="#">Technologies</a>
-        <a href="#">Health & Science</a>
+        <Link href="/category/crypto">Crypto</Link>
+        <Link href="/category/vancouver-today">Vancouver Today</Link>
+        <Link href="/category/technologies">Technologies</Link>
+        <Link href="/category/health-science">Health & Science</Link>
       </nav>
-      <button className={styles.signInButton}>Sign In</button>
+      <Link href="/signin" className={styles.signInButton}>
+        Sign In
+      </Link>
     </header>
   );
 };

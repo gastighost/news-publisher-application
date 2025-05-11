@@ -1,0 +1,181 @@
+.pageContainer {
+    max-width: 1920px;
+    margin: 0 auto;
+    padding: 20px 40px;
+    min-height: 100vh;
+    background-color: var(--background-color);
+    color: var(--text-color);
+}
+
+.mainContent {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.authSection {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.formWrapper {
+    width: 100%;
+    max-width: 450px;
+}
+
+.formContainer {
+    background-color: #1a1a1a;
+    padding: 30px 40px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.tabMenu {
+    display: flex;
+    margin-bottom: 30px;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+}
+
+.tab {
+    flex-grow: 1;
+    padding: 15px;
+    background-color: transparent;
+    color: var(--secondary-text-color);
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.tab:first-child {
+    border-right: 1px solid var(--border-color);
+}
+
+.tab.active {
+    background-color: var(--border-color);
+    color: var(--text-color);
+}
+
+.tab:not(.active):hover {
+    background-color: #2a2a2a;
+}
+
+.formContent {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background-color: var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 30px;
+    color: var(--text-color);
+}
+
+.authForm {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.inputGroup {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.inputGroup input {
+    width: 100%;
+    padding: 14px 14px 14px 45px;
+    background-color: #252525;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--text-color);
+    font-size: 0.95rem;
+}
+
+.inputGroup input::placeholder {
+    color: var(--secondary-text-color);
+}
+
+.inputIcon {
+    position: absolute;
+    left: 15px;
+    color: var(--secondary-text-color);
+    font-size: 1.1rem;
+}
+
+.submitButton {
+    padding: 14px;
+    background-color: var(--text-color);
+    color: var(--background-color);
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+    margin-top: 10px;
+}
+
+.submitButton:hover {
+    background-color: #e0e0e0;
+}
+
+.socialLogin {
+    margin-top: 30px;
+    text-align: center;
+    width: 100%;
+}
+
+.socialLoginText {
+    color: var(--secondary-text-color);
+    margin-bottom: 20px;
+    font-size: 0.9rem;
+}
+
+.socialIconsContainer {
+    display: flex;
+    justify-content: center;
+    gap: 25px;
+}
+
+.socialIcon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-color);
+    background-color: var(--border-color);
+    border: none;
+    cursor: pointer;
+    font-size: 1.4rem;
+    transition: background-color 0.3s ease;
+    text-decoration: none;
+}
+
+.socialIcon:hover {
+    background-color: #4a4a4a;
+}
+
+.google {
+}
+
+.telegram {
+}
