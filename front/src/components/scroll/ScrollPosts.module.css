@@ -1,0 +1,8 @@
+.noMorePostsIndicator {
+    text-align: center;
+    padding: 25px 0;
+    color: var(--secondary-text-color);
+    font-family: var(--font-saira), sans-serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+}

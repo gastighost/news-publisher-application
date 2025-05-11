@@ -4,7 +4,8 @@ export type Post = {
     id: number;
     title: string;
     subtitle: string | null; 
-    titleImage: string | null;
+    titleImage: string | null; 
+    imageUrl?: string | null; 
     authorId: number;
     date: string; 
     updatedDate: string | null; 
