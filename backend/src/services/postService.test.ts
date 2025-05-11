@@ -1,5 +1,8 @@
 import { Role } from "@prisma/client";
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
+import {
+  PrismaClientKnownRequestError,
+  PrismaClientValidationError,
+} from "@prisma/client/runtime/library";
 
 import {
   getAllPosts,
@@ -84,6 +87,18 @@ describe("Post Service Integration Tests", () => {
     expect(post).toHaveProperty("likeCount", 0);
   });
 
+  test("should throw error for invalid post ID (null)", async () => {
+    await expect(getApprovedPostById(null as any)).rejects.toThrow(
+      PrismaClientValidationError
+    );
+  });
+
+  test("should throw error for invalid post ID (NaN)", async () => {
+    await expect(getApprovedPostById(NaN)).rejects.toThrow(
+      PrismaClientValidationError
+    );
+  });
+
   test("should throw error for non-existent post ID", async () => {
     await expect(getApprovedPostById(9999)).rejects.toThrow(CustomError);
   });
@@ -97,6 +112,18 @@ describe("Post Service Integration Tests", () => {
 
     expect(comment).toHaveProperty("id");
     expect(comment).toHaveProperty("comment", "This is a test comment.");
+  });
+
+  test("should throw error for invalid comment ID (null)", async () => {
+    await expect(deleteComment(null as any, testUserId)).rejects.toThrow(
+      PrismaClientValidationError
+    );
+  });
+
+  test("should throw error for invalid comment ID (NaN)", async () => {
+    await expect(deleteComment(NaN, testUserId)).rejects.toThrow(
+      PrismaClientValidationError
+    );
   });
 
   test("should update a comment", async () => {
@@ -119,6 +146,29 @@ describe("Post Service Integration Tests", () => {
     await expect(
       updateComment(testUserId, 9999, "Invalid update")
     ).rejects.toThrow(CustomError);
+  });
+
+  test("should throw error for unauthorized comment update", async () => {
+    const secondUser = await prisma.user.create({
+      data: {
+        email: "seconduser@example.com",
+        username: "seconduser",
+        password: "hashedpassword",
+        firstName: "Second",
+        lastName: "User",
+        type: Role.READER,
+      },
+    });
+
+    const comment = await addCommentToPost(
+      testPostId,
+      secondUser.id,
+      "Comment by another user"
+    );
+
+    await expect(
+      updateComment(testUserId, comment.id, "Updated comment")
+    ).rejects.toThrow("Unauthorized to update this comment");
   });
 
   test("should delete a comment", async () => {
