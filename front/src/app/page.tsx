@@ -10,6 +10,9 @@ import { auto } from "@cloudinary/url-gen/actions/resize"
 import { autoGravity } from "@cloudinary/url-gen/qualifiers/gravity"
 import { format, quality } from "@cloudinary/url-gen/actions/delivery"
 
+import Footer from "../components/footer/Footer";
+import Header from "../components/header/Header"; 
+
 export default async function Home() {
   console.log(
     "Cloudinary Cloud Name:",
@@ -125,17 +128,7 @@ export default async function Home() {
 
   return (
     <div className={styles.container}>
-      <header className={styles.header}>
-        <div className={styles.logo}>Vancouver Times</div>
-        <nav className={styles.nav}>
-          <a href="#">Home</a>
-          <a href="#">Crypto</a>
-          <a href="#">Vancouver Today</a>
-          <a href="#">Technologies</a>
-          <a href="#">Health & Science</a>
-        </nav>
-        <button className={styles.signInButton}>Sign In</button>
-      </header>
+      <Header /> {/* Use the Header component here */}
 
       <main className={styles.mainContent}>
         {posts[0] ? (
@@ -295,6 +288,9 @@ export default async function Home() {
         <h2 className={styles.sectionTitle}>More Articles</h2>
         <ScrollPosts initialPosts={initialPostsForScroll} />
       </section>
+
+      <Footer />
+
     </div>
   )
 }
