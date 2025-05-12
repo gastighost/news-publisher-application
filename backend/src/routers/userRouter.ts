@@ -1,4 +1,4 @@
-import { Router, Request, Response } from "express";
+import { Router, Request, Response, NextFunction } from "express";
 import { Role } from "@prisma/client";
 
 import { env } from "../utils/validateEnv";
@@ -15,6 +15,7 @@ import {
   registerUser,
   updateUserStatus,
 } from "../services/userService";
+import { CustomError } from "../errors/CustomError";
 
 const router = Router();
 
@@ -26,13 +27,33 @@ router.post("/register", async (req: Request, res: Response) => {
   res.status(201).json({ message: "Registered a new user!", newUser });
 });
 
-router.post("/login", async (req: Request, res: Response) => {
-  const { email, password } = loginInputSchema.parse(req.body);
+router.post(
+  "/login",
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { email, password } = loginInputSchema.parse(req.body);
 
-  await loginUser(email, password);
+    await loginUser(email, password);
 
-  res.status(200).json({ message: "Login successful!" });
-});
+    passport.authenticate(
+      "local",
+      (err: Error | null, user: Express.User | false) => {
+        if (err || !user) {
+          throw new CustomError(
+            "Authentication failed - Invalid credentials",
+            401
+          );
+        }
+        req.logIn(user, (err: Error | null) => {
+          if (err) {
+            throw new CustomError("Login failed - Unable to log in user", 500);
+          }
+
+          res.status(200).json({ message: "Login successful" });
+        });
+      }
+    )(req, res, next);
+  }
+);
 
 router.get(
   "/google",
