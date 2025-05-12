@@ -1,10 +1,12 @@
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
+import { Strategy as LocalStrategy } from "passport-local";
 import { Request, Response, NextFunction } from "express";
 import { Role, User as PrismaUser } from "@prisma/client";
 
 import { env } from "../utils/validateEnv";
 import prisma from "../prisma/prisma_config";
+import { loginUser } from "../services/userService";
 
 declare global {
   namespace Express {
@@ -67,7 +69,27 @@ export const googleStrategy = new GoogleStrategy(
   googleVerify
 );
 
+export const localStrategy = new LocalStrategy(
+  {
+    usernameField: "email",
+    passwordField: "password",
+  },
+
+  async (email: string, password: string, done: Function) => {
+    try {
+      const user = await loginUser(email, password);
+
+      return done(null, user);
+    } catch (error) {
+      console.error("Error in LocalStrategy:", error);
+      return done(error);
+    }
+  }
+);
+
 passport.use(googleStrategy);
+
+passport.use(localStrategy);
 
 passport.serializeUser((user: Express.User, done) => {
   done(null, user.id);
@@ -78,8 +100,10 @@ passport.deserializeUser(async (id: number, done) => {
     const user = await prisma.user.findUnique({
       where: { id },
     });
+
     done(null, user);
   } catch (error) {
+    console.error("Error in deserializeUser:", error);
     done(error, null);
   }
 });
