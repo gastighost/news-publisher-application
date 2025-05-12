@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { User } from "./user";
+import { UserType } from "./user";
 
 import styles from "./page.module.css";
 
@@ -11,7 +12,7 @@ export default function AdminUserPage() {
     user_email: "email@.com",
     user_bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
   };
-  const [users, setUsers] = useState([]);
+  const [users, setUsers] = useState<UserType[]>([]);
 
   useEffect(() => {
     fetch("https://jsonplaceholder.typicode.com/users")
