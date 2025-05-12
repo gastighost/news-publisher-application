@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import styles from "./page.module.css";
 import EditorButton from "./button";
 import TitleEditor from "./titleEditor";
+import PostEditor from "./postEditor";
 
 export default function CreatePost() {
   const [keyPress, setKey] = useState();
@@ -24,7 +25,7 @@ export default function CreatePost() {
           </EditorButton>
         </div>
       </div>
-      <div id="page">
+      <div id={styles.right}>
         <TitleEditor
           titlePlaceholder="Your awesome article title"
           titleValue={title}
@@ -37,16 +38,7 @@ export default function CreatePost() {
           changeTitle={setSubtitle}
           fontSize="1.2rem"
         />
-        <p id={styles.editor} contentEditable="true">
-          This feature is not finished yet. Lorem ipsum dit alor sit amet,
-          consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut
-          labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
-          exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-          Duis aute irure dolor in reprehenderit in voluptate velit esse cillum
-          dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
-          proident, sunt in culpa qui officia deserunt mollit anim id est
-          laborum.
-        </p>
+        <PostEditor />
       </div>
     </div>
   );

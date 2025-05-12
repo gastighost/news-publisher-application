@@ -11,8 +11,13 @@ interface TitleEditorProps {
 export default function TitleEditor(title: TitleEditorProps) {
   return (
     <div className="titleEditor">
-      <input
-        type="text"
+      <textarea
+        rows={1}
+        onInput={(e) => {
+          e.currentTarget.style.height = "auto"; // reset the height
+          e.currentTarget.style.height = `${e.currentTarget.scrollHeight}px`; // set the height to the scroll height
+        }}
+        // type="text"
         placeholder={title.titlePlaceholder}
         className={styles.titleInput}
         value={title.titleValue}
@@ -21,7 +26,7 @@ export default function TitleEditor(title: TitleEditorProps) {
           fontSize: title.fontSize, // override the default width
         }}
         onChange={(e) => title.changeTitle(e.target.value)}
-      ></input>
+      ></textarea>
     </div>
   );
 }
