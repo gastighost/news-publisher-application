@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { Role } from "@prisma/client";
 
-import { requireAuth, requireRole } from "../auth/passportAuth";
+import { requireAuth, requireRole } from "../passportAuth";
 
 describe("requireAuth middleware", () => {
   it("should call next() if the user is authenticated", () => {

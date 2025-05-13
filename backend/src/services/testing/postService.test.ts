@@ -1,4 +1,5 @@
 import { Role } from "@prisma/client";
+import { Readable } from "stream";
 import {
   PrismaClientKnownRequestError,
   PrismaClientValidationError,
@@ -13,10 +14,24 @@ import {
   createPost,
   updatePostStatus,
   deletePost,
-} from "./postService";
-import { CustomError } from "../errors/CustomError";
+} from "../postService";
+import { CustomError } from "../../errors/CustomError";
 
-import prisma from "../prisma/prisma_config";
+import prisma from "../../prisma/prisma_config";
+
+jest.mock("cloudinary", () => ({
+  v2: {
+    config: jest.fn(),
+    uploader: {
+      upload_stream: jest.fn((options, callback) => {
+        callback(null, {
+          public_id: "mocked_public_id",
+          secure_url: "https://mocked.cloudinary.url/image.png",
+        });
+      }),
+    },
+  },
+}));
 
 beforeAll(async () => {
   await prisma.$connect();
@@ -53,11 +68,24 @@ describe("Post Service Integration Tests", () => {
     });
     testUserId = user!.id;
 
+    const mockFile: Express.Multer.File = {
+      fieldname: "titleImage",
+      originalname: "image.png",
+      encoding: "7bit",
+      mimetype: "image/png",
+      size: 1234,
+      buffer: Buffer.from("mock image content"),
+      stream: new Readable(),
+      destination: "",
+      filename: "",
+      path: "",
+    };
+
     const post = await createPost(testUserId, {
       title: "Test Post",
       subtitle: "Test Subtitle",
       content: "This is a test post.",
-      titleImage: "https://example.com/image.png",
+      titleImage: mockFile,
       commentsEnabled: true,
     });
     await updatePostStatus(post.id, true);

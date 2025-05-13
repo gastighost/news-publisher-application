@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { authApi } from "../../../../lib/user_auth";
+import { postApi } from "../../../../lib/auth/user_auth";
 
 export default function CreatePostPage() {
   const [title, setTitle] = useState("");
@@ -33,7 +33,7 @@ export default function CreatePostPage() {
     }
 
     try {
-      await authApi.createPost(formData);
+      await postApi.createPost(formData);
 
       setMessage("Post created successfully!");
       setTitle("");

@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-// This middleware checks if the user is authenticated before allowing access to protected routes.
-// If the user is not authenticated, they are redirected to the sign-in page.
 export const unprotectedRoutes = ["/", "/signin"];
 
 export async function middleware(request: NextRequest) {
@@ -14,7 +12,8 @@ export async function middleware(request: NextRequest) {
   }
 
   // Check if the session cookie exists
-  const sessionCookie = request.cookies.get("connect.sid"); // Replace with your session cookie name
+  const sessionCookie = request.cookies.get(process.env.SESSION_COOKIE_NAME!);
+
   if (!sessionCookie) {
     const signInUrl = new URL("/signin", request.url);
     return NextResponse.redirect(signInUrl);

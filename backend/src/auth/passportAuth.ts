@@ -3,7 +3,6 @@ import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import { Strategy as LocalStrategy } from "passport-local";
 import { Request, Response, NextFunction } from "express";
 import { Role, User as PrismaUser } from "@prisma/client";
-
 import { env } from "../utils/validateEnv";
 import prisma from "../prisma/prisma_config";
 import { loginUser } from "../services/userService";
@@ -32,7 +31,6 @@ export const googleVerify = async (
         where: { id: existingUser.id },
         data: { lastLoginDate: new Date() },
       });
-
       return done(null, updatedUser);
     }
 
@@ -51,11 +49,9 @@ export const googleVerify = async (
     return done(null, newUser);
   } catch (error) {
     console.error("Error in GoogleStrategy:", error);
-
     if (error instanceof Error) {
       return done(error, undefined);
     }
-
     return done(new Error("An unknown error occurred"), undefined);
   }
 };
@@ -69,26 +65,29 @@ export const googleStrategy = new GoogleStrategy(
   googleVerify
 );
 
+const localVerify = async (
+  emailOrUsername: string,
+  password: string,
+  done: Function
+) => {
+  try {
+    const user = await loginUser(emailOrUsername, password);
+    return done(null, user);
+  } catch (error) {
+    console.error("Error in LocalStrategy:", error);
+    return done(error);
+  }
+};
+
 export const localStrategy = new LocalStrategy(
   {
-    usernameField: "email",
+    usernameField: "emailOrUsername",
     passwordField: "password",
   },
-
-  async (email: string, password: string, done: Function) => {
-    try {
-      const user = await loginUser(email, password);
-
-      return done(null, user);
-    } catch (error) {
-      console.error("Error in LocalStrategy:", error);
-      return done(error);
-    }
-  }
+  localVerify
 );
 
 passport.use(googleStrategy);
-
 passport.use(localStrategy);
 
 passport.serializeUser((user: Express.User, done) => {
@@ -100,7 +99,6 @@ passport.deserializeUser(async (id: number, done) => {
     const user = await prisma.user.findUnique({
       where: { id },
     });
-
     done(null, user);
   } catch (error) {
     console.error("Error in deserializeUser:", error);

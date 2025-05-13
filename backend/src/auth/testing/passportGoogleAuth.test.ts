@@ -1,7 +1,7 @@
-import { googleVerify } from "../auth/passportAuth";
-import prisma from "../prisma/prisma_config";
+import { googleVerify } from "../passportAuth";
+import prisma from "../../prisma/prisma_config";
 
-jest.mock("../prisma/prisma_config", () => ({
+jest.mock("../../prisma/prisma_config", () => ({
   user: {
     findFirst: jest.fn(),
     update: jest.fn(),
@@ -14,7 +14,7 @@ describe("GoogleStrategy verify function", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    jest.spyOn(console, "error").mockImplementation(() => {}); 
+    jest.spyOn(console, "error").mockImplementation(() => {});
   });
 
   it("should handle errors during database operations", async () => {

@@ -9,20 +9,23 @@ datasource db {
 
 model User {
   id               Int           @id @default(autoincrement())
-  email            String        @unique
-  username         String?
-  password         String
-  firstName        String
-  lastName         String
+  email            String?       @unique
+  username         String        @unique
+  password         String?
+  firstName        String?
+  lastName         String?
   bio              String?
   avatar           String?
-  type             Role
+  type             Role          @default(READER)
   registrationDate DateTime      @default(now())
   lastLoginDate    DateTime?
   userStatus       Status        @default(ACTIVE)
+  phoneNumber      String?       @unique
+  walletAddress    String?       @unique
   posts            Post[]
   comments         PostComment[]
   likes            PostLike[]
+  externalAuths    ExternalAuth[]
 }
 
 model Post {
@@ -69,6 +72,23 @@ model PostComment {
 
   @@index([postId], map: "PostComment_post_id_fkey")
   @@index([userId], map: "PostComment_user_id_fkey")
+}
+
+model ExternalAuth {
+  id         Int           @id @default(autoincrement())
+  userId     Int
+  provider   AuthProvider
+  providerId String
+  user       User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerId])
+  @@index([userId])
+}
+
+enum AuthProvider {
+  GOOGLE
+  TELEGRAM
+  CRYPTO
 }
 
 enum Role {
