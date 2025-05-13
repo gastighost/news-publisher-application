@@ -25,11 +25,22 @@ export const registerUser = async (userInput: UserInput) => {
   return newUser;
 };
 
-export const loginUser = async (email: string, password: string) => {
-  const user = await prisma.user.findUnique({ where: { email } });
+export const loginUser = async (emailOrUsername: string, password: string) => {
+  const user = await prisma.user.findFirst({
+    where: {
+      OR: [
+        { email: emailOrUsername },
+        { username: emailOrUsername },
+      ],
+    },
+  });
 
   if (!user) {
     throw new CustomError("Invalid credentials.", 401);
+  }
+
+  if (!user.password) {
+    throw new CustomError("Invalid credentials (user has no password set for local login).", 401);
   }
 
   const isPasswordValid = await bcrypt.compare(password, user.password);
@@ -38,7 +49,13 @@ export const loginUser = async (email: string, password: string) => {
     throw new CustomError("Invalid credentials.", 401);
   }
 
-  return user;
+  // Update lastLoginDate and return the updated user
+  const loggedInUser = await prisma.user.update({
+    where: { id: user.id },
+    data: { lastLoginDate: new Date() },
+  });
+
+  return loggedInUser;
 };
 
 export const getUsers = async () => {
