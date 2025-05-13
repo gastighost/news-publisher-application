@@ -3,7 +3,6 @@ import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import { Strategy as LocalStrategy } from "passport-local";
 import { Request, Response, NextFunction } from "express";
 import { Role, User as PrismaUser } from "@prisma/client";
-
 import { env } from "../utils/validateEnv";
 import prisma from "../prisma/prisma_config";
 import { loginUser } from "../services/userService";
@@ -23,16 +22,15 @@ export const googleVerify = async (
   try {
     const existingUser = await prisma.user.findFirst({
       where: {
-        email: profile.emails?.[0]?.value,
-      },
+        email: profile.emails?.[0]?.value
+      }
     });
 
     if (existingUser) {
       const updatedUser = await prisma.user.update({
         where: { id: existingUser.id },
-        data: { lastLoginDate: new Date() },
+        data: { lastLoginDate: new Date() }
       });
-
       return done(null, updatedUser);
     }
 
@@ -44,18 +42,16 @@ export const googleVerify = async (
         password: "",
         type: Role.READER,
         username: profile.displayName ?? `user_${Date.now()}`,
-        avatar: profile.photos?.[0]?.value,
-      },
+        avatar: profile.photos?.[0]?.value
+      }
     });
 
     return done(null, newUser);
   } catch (error) {
     console.error("Error in GoogleStrategy:", error);
-
     if (error instanceof Error) {
       return done(error, undefined);
     }
-
     return done(new Error("An unknown error occurred"), undefined);
   }
 };
@@ -64,21 +60,19 @@ export const googleStrategy = new GoogleStrategy(
   {
     clientID: env.GOOGLE_CLIENT_ID,
     clientSecret: env.GOOGLE_CLIENT_SECRET,
-    callbackURL: env.GOOGLE_CALLBACK_URL,
+    callbackURL: env.GOOGLE_CALLBACK_URL
   },
   googleVerify
 );
 
 export const localStrategy = new LocalStrategy(
   {
-    usernameField: "email",
-    passwordField: "password",
+    usernameField: "emailOrUsername",
+    passwordField: "password"
   },
-
-  async (email: string, password: string, done: Function) => {
+  async (emailOrUsername: string, password: string, done: Function) => {
     try {
-      const user = await loginUser(email, password);
-
+      const user = await loginUser(emailOrUsername, password);
       return done(null, user);
     } catch (error) {
       console.error("Error in LocalStrategy:", error);
@@ -88,7 +82,6 @@ export const localStrategy = new LocalStrategy(
 );
 
 passport.use(googleStrategy);
-
 passport.use(localStrategy);
 
 passport.serializeUser((user: Express.User, done) => {
@@ -98,9 +91,8 @@ passport.serializeUser((user: Express.User, done) => {
 passport.deserializeUser(async (id: number, done) => {
   try {
     const user = await prisma.user.findUnique({
-      where: { id },
+      where: { id }
     });
-
     done(null, user);
   } catch (error) {
     console.error("Error in deserializeUser:", error);

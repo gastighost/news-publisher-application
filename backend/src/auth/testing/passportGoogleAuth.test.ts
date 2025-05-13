@@ -1,5 +1,5 @@
-import { googleVerify } from "../auth/passportAuth";
-import prisma from "../prisma/prisma_config";
+import { googleVerify } from "../passportAuth";
+import prisma from "../../prisma/prisma_config";
 
 jest.mock("../prisma/prisma_config", () => ({
   user: {

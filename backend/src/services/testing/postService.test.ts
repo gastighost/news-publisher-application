@@ -13,10 +13,10 @@ import {
   createPost,
   updatePostStatus,
   deletePost,
-} from "./postService";
-import { CustomError } from "../errors/CustomError";
+} from "../postService";
+import { CustomError } from "../../errors/CustomError";
 
-import prisma from "../prisma/prisma_config";
+import prisma from "../../prisma/prisma_config";
 
 beforeAll(async () => {
   await prisma.$connect();

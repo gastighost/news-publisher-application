@@ -5,9 +5,9 @@ import {
   loginUser,
   getUsers,
   updateUserStatus,
-} from "./userService";
-import { CustomError } from "../errors/CustomError";
-import prisma from "../prisma/prisma_config";
+} from "../userService";
+import { CustomError } from "../../errors/CustomError";
+import prisma from "../../prisma/prisma_config";
 
 beforeAll(async () => {
   await prisma.$connect();

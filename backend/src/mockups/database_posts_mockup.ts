@@ -2,6 +2,7 @@ import prisma from "../prisma/prisma_config";
 import fs from "fs/promises"
 import { Role } from "@prisma/client";
 import dotenv from "dotenv"
+import bcrypt from "bcrypt"; 
 
 const fakeDbPath : string = __dirname + "/fake_db.json"
 dotenv.config({ path: require('path').resolve(__dirname, '../../.env') }); 
@@ -58,13 +59,14 @@ async function createMockUsers() {
       });
       
       if (!existingUser) {
+        const hashedPassword = await bcrypt.hash(user.password, 12); 
         await prisma.user.create({
           data: {
             id: user.id,
             email: user.email,
             firstName: user.firstName,
             lastName: user.lastName,
-            password: user.password,
+            password: hashedPassword, 
             type: user.type,
             username: `user${user.id}`
           }
