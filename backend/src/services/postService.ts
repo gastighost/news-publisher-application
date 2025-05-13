@@ -165,7 +165,7 @@ export const createPost = async (
       const uploadResult = await new Promise<UploadApiResponse>(
         (resolve, reject) => {
           const uploadStream = cloudinary.uploader.upload_stream(
-            { folder: "posts" },
+            {},
             (error, result) => {
               if (error) return reject(error);
               resolve(result as UploadApiResponse);
