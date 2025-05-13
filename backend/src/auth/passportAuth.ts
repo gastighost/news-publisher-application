@@ -22,14 +22,14 @@ export const googleVerify = async (
   try {
     const existingUser = await prisma.user.findFirst({
       where: {
-        email: profile.emails?.[0]?.value
-      }
+        email: profile.emails?.[0]?.value,
+      },
     });
 
     if (existingUser) {
       const updatedUser = await prisma.user.update({
         where: { id: existingUser.id },
-        data: { lastLoginDate: new Date() }
+        data: { lastLoginDate: new Date() },
       });
       return done(null, updatedUser);
     }
@@ -42,8 +42,8 @@ export const googleVerify = async (
         password: "",
         type: Role.READER,
         username: profile.displayName ?? `user_${Date.now()}`,
-        avatar: profile.photos?.[0]?.value
-      }
+        avatar: profile.photos?.[0]?.value,
+      },
     });
 
     return done(null, newUser);
@@ -60,25 +60,31 @@ export const googleStrategy = new GoogleStrategy(
   {
     clientID: env.GOOGLE_CLIENT_ID,
     clientSecret: env.GOOGLE_CLIENT_SECRET,
-    callbackURL: env.GOOGLE_CALLBACK_URL
+    callbackURL: env.GOOGLE_CALLBACK_URL,
   },
   googleVerify
 );
 
+const localVerify = async (
+  emailOrUsername: string,
+  password: string,
+  done: Function
+) => {
+  try {
+    const user = await loginUser(emailOrUsername, password);
+    return done(null, user);
+  } catch (error) {
+    console.error("Error in LocalStrategy:", error);
+    return done(error);
+  }
+};
+
 export const localStrategy = new LocalStrategy(
   {
     usernameField: "emailOrUsername",
-    passwordField: "password"
+    passwordField: "password",
   },
-  async (emailOrUsername: string, password: string, done: Function) => {
-    try {
-      const user = await loginUser(emailOrUsername, password);
-      return done(null, user);
-    } catch (error) {
-      console.error("Error in LocalStrategy:", error);
-      return done(error);
-    }
-  }
+  localVerify
 );
 
 passport.use(googleStrategy);
@@ -91,7 +97,7 @@ passport.serializeUser((user: Express.User, done) => {
 passport.deserializeUser(async (id: number, done) => {
   try {
     const user = await prisma.user.findUnique({
-      where: { id }
+      where: { id },
     });
     done(null, user);
   } catch (error) {

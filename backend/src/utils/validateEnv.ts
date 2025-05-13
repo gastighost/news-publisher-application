@@ -22,6 +22,13 @@ const envSchema = z.object({
       }),
     })
     .optional(),
+  CLOUDINARY_CLOUD_NAME: z
+    .string()
+    .nonempty("CLOUDINARY_CLOUD_NAME is required"),
+  CLOUDINARY_API_KEY: z.string().nonempty("CLOUDINARY_API_KEY is required"),
+  CLOUDINARY_API_SECRET: z
+    .string()
+    .nonempty("CLOUDINARY_API_SECRET is required"),
 });
 
 

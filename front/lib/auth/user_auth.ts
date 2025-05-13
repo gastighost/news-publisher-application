@@ -8,12 +8,17 @@ interface RegistrationResponse {
   user?: any; // You can replace 'any' with a more specific User type if available
 }
 
-async function register(username: string, email: string, password: string): Promise<RegistrationResponse> {
+async function register(
+  username: string,
+  email: string,
+  password: string
+): Promise<RegistrationResponse> {
   try {
-    const response = await fetch(`${BACKEND_URL}/api/auth/register`, { // Ensure this matches your backend API route
-      method: 'POST',
+    const response = await fetch(`${BACKEND_URL}/api/auth/register`, {
+      // Ensure this matches your backend API route
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({ username, email, password }),
     });
@@ -22,14 +27,22 @@ async function register(username: string, email: string, password: string): Prom
 
     if (!response.ok) {
       // Handles HTTP errors like 409 (User already exists), 400 (Validation error), etc.
-      return { success: false, message: data.message || `Registration failed with status: ${response.status}` };
+      return {
+        success: false,
+        message:
+          data.message || `Registration failed with status: ${response.status}`,
+      };
     }
 
     // Assuming your backend returns something like { message: "Registered a new user!", newUser: { ... } } on success (201)
     return { success: true, user: data.newUser, message: data.message };
   } catch (error: any) {
     console.error("Registration error:", error);
-    return { success: false, message: error.message || "An unexpected error occurred during registration." };
+    return {
+      success: false,
+      message:
+        error.message || "An unexpected error occurred during registration.",
+    };
   }
 }
 
@@ -51,7 +64,11 @@ export const authApi = {
       return { authenticated: false };
     }
   },
-  login: async (loginIdentifier: string, password: string): Promise<boolean> => { // Parameter name changed for clarity
+  login: async (
+    loginIdentifier: string,
+    password: string
+  ): Promise<boolean> => {
+    // Parameter name changed for clarity
     try {
       const response = await fetch(`${BACKEND_URL}/api/auth/login`, {
         method: "POST",
@@ -88,4 +105,25 @@ export const authApi = {
     }
   },
   register,
+};
+
+export const postApi = {
+  createPost: async (formData: FormData) => {
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/posts/`, {
+        method: "POST",
+        body: formData,
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to create post");
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error("Error creating post:", error);
+      throw error;
+    }
+  },
 };

@@ -19,6 +19,7 @@ import {
   updatePostStatus,
 } from "../services/postService";
 import { CustomError } from "../errors/CustomError";
+import upload from "../middleware/multer";
 
 const router = Router();
 
@@ -119,17 +120,20 @@ router.post(
   "/",
   requireAuth,
   requireRole([Role.ADMIN, Role.WRITER]),
+  upload.single("titleImage"),
   async (req: Request, res: Response) => {
     const postInput = postInputSchema.parse(req.body);
 
     const userId = req.user?.id;
 
     if (!userId) {
-      res.status(401).json({ message: "User not authenticated" });
-      return;
+      throw new CustomError("User not authenticated", 401);
     }
 
-    const newPost = await createPost(userId, postInput);
+    const newPost = await createPost(userId, {
+      ...postInput,
+      titleImage: req.file,
+    });
 
     res
       .status(201)

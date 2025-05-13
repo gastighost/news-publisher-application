@@ -1,6 +1,9 @@
 import { Role } from "@prisma/client";
+import { UploadApiResponse } from "cloudinary";
+
 import { CustomError } from "../errors/CustomError";
 import prisma from "../prisma/prisma_config";
+import cloudinary from "../config/cloudinaryConfig";
 
 export const getAllPosts = async (offset: number, limit: number) => {
   return await prisma.post.findMany({
@@ -150,16 +153,46 @@ export const createPost = async (
     title: string;
     subtitle?: string;
     content: string;
-    titleImage?: string;
+    titleImage?: Express.Multer.File;
     commentsEnabled?: boolean;
   }
 ) => {
+  let titleImageId: string | null = null;
+
+  // Upload the image to Cloudinary if provided
+  if (postInput.titleImage) {
+    try {
+      const uploadResult = await new Promise<UploadApiResponse>(
+        (resolve, reject) => {
+          const uploadStream = cloudinary.uploader.upload_stream(
+            { folder: "posts" },
+            (error, result) => {
+              if (error) return reject(error);
+              resolve(result as UploadApiResponse);
+            }
+          );
+          uploadStream.end(postInput.titleImage?.buffer);
+        }
+      );
+
+      // Extract only the hash (ID) from the public_id
+      const fullPublicId = uploadResult.public_id;
+
+      titleImageId = fullPublicId.includes("/")
+        ? fullPublicId.split("/").pop() ?? null
+        : fullPublicId;
+    } catch (error) {
+      console.error("Error uploading image to Cloudinary:", error);
+      throw new CustomError("Failed to upload image", 500);
+    }
+  }
+
   return await prisma.post.create({
     data: {
       title: postInput.title,
       subtitle: postInput.subtitle ?? null,
       content: postInput.content,
-      titleImage: postInput.titleImage ?? null,
+      titleImage: titleImageId,
       commentsEnabled: postInput.commentsEnabled ?? true,
       authorId: userId,
     },
