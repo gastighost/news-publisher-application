@@ -119,7 +119,7 @@ router.delete(
 router.post(
   "/",
   requireAuth,
-  requireRole([Role.ADMIN, Role.WRITER, Role.READER]),
+  requireRole([Role.ADMIN, Role.WRITER]),
   upload.single("titleImage"),
   async (req: Request, res: Response) => {
     const postInput = postInputSchema.parse(req.body);
