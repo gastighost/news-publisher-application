@@ -1,4 +1,5 @@
 import { Role } from "@prisma/client";
+import { UploadApiResponse } from "cloudinary";
 
 import { CustomError } from "../errors/CustomError";
 import prisma from "../prisma/prisma_config";
@@ -156,33 +157,42 @@ export const createPost = async (
     commentsEnabled?: boolean;
   }
 ) => {
-  let titleImageUrl: string | null = null;
+  let titleImageId: string | null = null;
 
+  // Upload the image to Cloudinary if provided
   if (postInput.titleImage) {
     try {
-      const uploadResult = await new Promise((resolve, reject) => {
-        const uploadStream = cloudinary.uploader.upload_stream(
-          { folder: "posts" },
-          (error, result) => {
-            if (error) return reject(error);
-            resolve(result);
-          }
-        );
-        uploadStream.end(postInput.titleImage?.buffer); // Use the file buffer
-      });
+      const uploadResult = await new Promise<UploadApiResponse>(
+        (resolve, reject) => {
+          const uploadStream = cloudinary.uploader.upload_stream(
+            { folder: "posts" },
+            (error, result) => {
+              if (error) return reject(error);
+              resolve(result as UploadApiResponse);
+            }
+          );
+          uploadStream.end(postInput.titleImage?.buffer);
+        }
+      );
 
-      titleImageUrl = (uploadResult as any).secure_url;
+      // Extract only the hash (ID) from the public_id
+      const fullPublicId = uploadResult.public_id;
+
+      titleImageId = fullPublicId.includes("/")
+        ? fullPublicId.split("/").pop() ?? null
+        : fullPublicId;
     } catch (error) {
       console.error("Error uploading image to Cloudinary:", error);
       throw new CustomError("Failed to upload image", 500);
     }
   }
+
   return await prisma.post.create({
     data: {
       title: postInput.title,
       subtitle: postInput.subtitle ?? null,
       content: postInput.content,
-      titleImage: titleImageUrl,
+      titleImage: titleImageId,
       commentsEnabled: postInput.commentsEnabled ?? true,
       authorId: userId,
     },
