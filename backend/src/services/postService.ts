@@ -1,6 +1,8 @@
 import { Role } from "@prisma/client";
+
 import { CustomError } from "../errors/CustomError";
 import prisma from "../prisma/prisma_config";
+import cloudinary from "../config/cloudinaryConfig";
 
 export const getAllPosts = async (offset: number, limit: number) => {
   return await prisma.post.findMany({
@@ -150,16 +152,37 @@ export const createPost = async (
     title: string;
     subtitle?: string;
     content: string;
-    titleImage?: string;
+    titleImage?: Express.Multer.File;
     commentsEnabled?: boolean;
   }
 ) => {
+  let titleImageUrl: string | null = null;
+
+  if (postInput.titleImage) {
+    try {
+      const uploadResult = await new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          { folder: "posts" },
+          (error, result) => {
+            if (error) return reject(error);
+            resolve(result);
+          }
+        );
+        uploadStream.end(postInput.titleImage?.buffer); // Use the file buffer
+      });
+
+      titleImageUrl = (uploadResult as any).secure_url;
+    } catch (error) {
+      console.error("Error uploading image to Cloudinary:", error);
+      throw new CustomError("Failed to upload image", 500);
+    }
+  }
   return await prisma.post.create({
     data: {
       title: postInput.title,
       subtitle: postInput.subtitle ?? null,
       content: postInput.content,
-      titleImage: postInput.titleImage ?? null,
+      titleImage: titleImageUrl,
       commentsEnabled: postInput.commentsEnabled ?? true,
       authorId: userId,
     },
