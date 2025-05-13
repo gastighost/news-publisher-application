@@ -54,4 +54,22 @@ export const authApi = {
       return false;
     }
   },
+  createPost: async (formData: FormData) => {
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/posts/`, {
+        method: "POST",
+        body: formData,
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to create post");
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error("Error creating post:", error);
+      throw error;
+    }
+  },
 };
