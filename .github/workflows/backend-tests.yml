@@ -66,7 +66,7 @@ jobs:
       # Step 6: Run database migrations
       - name: Run database migrations
         env:
-          DATABASE_URL: "mysql://testuser:testpassword@localhost:3306/testdb"
+          DATABASE_URL: "mysql://root:rootpassword@127.0.0.1:3306/testdb"
         run: |
           cd backend
           npm run prisma:migrate
