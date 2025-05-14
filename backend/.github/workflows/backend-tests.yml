@@ -1,0 +1,68 @@
+name: Backend CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8
+        ports:
+          - 3306:3306
+        env:
+          MYSQL_ROOT_PASSWORD: rootpassword
+          MYSQL_USER: testuser
+          MYSQL_PASSWORD: testpassword
+          MYSQL_DATABASE: testdb
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -u testuser --password=testpassword"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      # Step 1: Check out the repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Step 2: Set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18.x"
+
+      # Step 3: Install dependencies
+      - name: Install dependencies
+        run: npm install
+
+      # Step 4: Set up Prisma
+      - name: Set up Prisma
+        run: npx prisma generate
+
+      # Step 5: Wait for MySQL to be ready
+      - name: Wait for MySQL to be ready
+        run: |
+          until mysqladmin ping -h localhost -u testuser --password=testpassword; do
+            echo "Waiting for MySQL to be ready..."
+            sleep 2
+          done
+
+      # Step 6: Run database migrations
+      - name: Run database migrations
+        env:
+          DATABASE_URL: "mysql://testuser:testpassword@localhost:3306/testdb"
+        run: npx prisma migrate dev --schema ./src/prisma/schema.prisma
+
+      # Step 7: Run tests
+      - name: Run tests
+        env:
+          DATABASE_URL: "mysql://testuser:testpassword@localhost:3306/testdb"
+        run: npm run test
