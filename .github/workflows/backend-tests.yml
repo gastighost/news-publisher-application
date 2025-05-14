@@ -75,6 +75,15 @@ jobs:
       - name: Run tests
         env:
           DATABASE_URL: "mysql://testuser:testpassword@localhost:3306/testdb"
+          PORT: "8000"
+          GOOGLE_CLIENT_ID: "dummy-client-id"
+          GOOGLE_CLIENT_SECRET: "dummy-client-secret"
+          GOOGLE_CALLBACK_URL: "http://localhost:8000/auth/google/callback"
+          SESSION_SECRET: "dummy-session-secret"
+          FRONTEND_URL: "http://localhost:3000"
+          CLOUDINARY_CLOUD_NAME: "dummy-cloud-name"
+          CLOUDINARY_API_KEY: "dummy-api-key"
+          CLOUDINARY_API_SECRET: "dummy-api-secret"
         run: |
           cd backend
           npm run test
