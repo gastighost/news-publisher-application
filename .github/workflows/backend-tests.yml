@@ -41,11 +41,15 @@ jobs:
 
       # Step 3: Install dependencies
       - name: Install dependencies
-        run: npm install
+        run: |
+          cd backend
+          npm install
 
       # Step 4: Set up Prisma
       - name: Set up Prisma
-        run: npx prisma generate
+        run: |
+          cd backend
+          npx prisma generate
 
       # Step 5: Wait for MySQL to be ready
       - name: Wait for MySQL to be ready
@@ -59,10 +63,14 @@ jobs:
       - name: Run database migrations
         env:
           DATABASE_URL: "mysql://testuser:testpassword@localhost:3306/testdb"
-        run: npx prisma migrate dev --schema ./src/prisma/schema.prisma
+        run: |
+          cd backend
+          npx prisma migrate dev --schema ./src/prisma/schema.prisma
 
       # Step 7: Run tests
       - name: Run tests
         env:
           DATABASE_URL: "mysql://testuser:testpassword@localhost:3306/testdb"
-        run: npm run test
+        run: |
+          cd backend
+          npm run test
