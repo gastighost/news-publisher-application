@@ -1,0 +1,94 @@
+name: Backend CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8
+        ports:
+          - 3306:3306
+        env:
+          MYSQL_ROOT_PASSWORD: rootpassword
+          MYSQL_USER: testuser
+          MYSQL_PASSWORD: testpassword
+          MYSQL_DATABASE: testdb
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -u testuser --password=testpassword"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    steps:
+      # Step 1: Check out the repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Step 2: Set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18.x"
+
+      # Step 3: Install dependencies
+      - name: Install dependencies
+        run: |
+          cd backend
+          npm install
+
+      # Step 4: Set up Prisma
+      - name: Set up Prisma
+        run: |
+          cd backend
+          npm run prisma:generate
+
+      # Step 5: Wait for MySQL to be ready
+      - name: Wait for MySQL to be ready
+        run: |
+          for i in {1..60}; do
+            if mysqladmin ping -h 127.0.0.1 -u testuser --password=testpassword --silent; then
+              echo "MySQL is ready!"
+              break
+            fi
+            echo "Waiting for MySQL to be ready..."
+            sleep 2
+          done
+
+      # Debug MySQL connection
+      - name: Verify MySQL connection
+        run: |
+          mysql -h 127.0.0.1 -u testuser --password=testpassword -e "SHOW DATABASES;"
+
+      # Step 6: Run database migrations
+      - name: Run database migrations
+        env:
+          DATABASE_URL: "mysql://root:rootpassword@127.0.0.1:3306/testdb"
+        run: |
+          cd backend
+          npm run prisma:migrate
+
+      # Step 7: Run tests
+      - name: Run tests
+        env:
+          DATABASE_URL: "mysql://testuser:testpassword@127.0.0.1:3306/testdb"
+          PORT: "8000"
+          GOOGLE_CLIENT_ID: "dummy-client-id"
+          GOOGLE_CLIENT_SECRET: "dummy-client-secret"
+          GOOGLE_CALLBACK_URL: "http://localhost:8000/auth/google/callback"
+          SESSION_SECRET: "dummy-session-secret"
+          FRONTEND_URL: "http://localhost:3000"
+          CLOUDINARY_CLOUD_NAME: "dummy-cloud-name"
+          CLOUDINARY_API_KEY: "dummy-api-key"
+          CLOUDINARY_API_SECRET: "dummy-api-secret"
+        run: |
+          cd backend
+          npm run test
