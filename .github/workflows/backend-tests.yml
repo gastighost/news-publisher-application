@@ -49,7 +49,7 @@ jobs:
       - name: Set up Prisma
         run: |
           cd backend
-          npx prisma generate
+          npm run prisma:generate
 
       # Step 5: Wait for MySQL to be ready
       - name: Wait for MySQL to be ready
@@ -65,7 +65,7 @@ jobs:
           DATABASE_URL: "mysql://testuser:testpassword@localhost:3306/testdb"
         run: |
           cd backend
-          npx prisma migrate dev --schema ./src/prisma/schema.prisma
+          npm run prisma:migrate
 
       # Step 7: Run tests
       - name: Run tests
