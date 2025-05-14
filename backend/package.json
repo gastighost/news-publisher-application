@@ -14,9 +14,11 @@
     "prisma:generate": "npx prisma generate --schema ./src/prisma/schema.prisma",
     "prisma:migrate:test": "dotenv -e .env.test -- npx prisma migrate deploy --schema ./src/prisma/schema.prisma",
     "prisma:update": "npm run prisma:migrate && npm run prisma:generate && npm run prisma:migrate:test",
-    "test": "dotenv -e .env.test -- jest --config jest.config.js --coverage --coverageReporters=text-summary"
+    "test": "dotenv -e .env.test -- jest --config jest.config.js --coverage --coverageReporters=text-summary",
+    "seed": "ts-node src/seed/seeding.ts"
   },
   "dependencies": {
+    "@faker-js/faker": "^9.7.0",
     "@prisma/client": "^6.7.0",
     "@types/express-session": "^1.18.1",
     "@types/passport-google-oauth20": "^2.0.16",
