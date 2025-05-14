@@ -23,10 +23,10 @@ jobs:
           MYSQL_PASSWORD: testpassword
           MYSQL_DATABASE: testdb
         options: >-
-          --health-cmd="mysqladmin ping -h localhost -u testuser --password=testpassword"
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -u testuser --password=testpassword"
           --health-interval=10s
           --health-timeout=5s
-          --health-retries=5
+          --health-retries=10
 
     steps:
       # Step 1: Check out the repository
@@ -54,7 +54,11 @@ jobs:
       # Step 5: Wait for MySQL to be ready
       - name: Wait for MySQL to be ready
         run: |
-          until mysqladmin ping -h localhost -u testuser --password=testpassword; do
+          for i in {1..30}; do
+            if mysqladmin ping -h 127.0.0.1 -u testuser --password=testpassword --silent; then
+              echo "MySQL is ready!"
+              break
+            fi
             echo "Waiting for MySQL to be ready..."
             sleep 2
           done
