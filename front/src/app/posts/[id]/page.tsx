@@ -1,3 +1,7 @@
+import Header from "@/components/header/Header";
+import Footer from "@/components/footer/Footer";
+import IndividualPost from "./individualPost";
+
 export default async function PostPage({
   params,
 }: {
@@ -5,5 +9,11 @@ export default async function PostPage({
 }) {
   const { id } = await params;
 
-  return <div>Individual Post: {id}</div>;
+  return (
+    <>
+      <Header></Header>
+      <IndividualPost></IndividualPost>
+      <Footer></Footer>
+    </>
+  );
 }
