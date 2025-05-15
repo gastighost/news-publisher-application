@@ -1,18 +1,20 @@
 import styles from "./page.module.css";
 
+export interface UserType {
+  id: number;
+  username: string;
+  user_email: string;
+  user_first_name?: string;
+  user_last_name?: string;
+  user_bio?: string;
+  user_avatar?: string;
+  user_register_day?: string;
+  user_last_login?: string;
+  user_status?: string;
+}
+
 interface UserProps {
-  user: {
-    id: number;
-    username: string;
-    user_email: string;
-    user_first_name?: string;
-    user_last_name?: string;
-    user_bio?: string;
-    user_avatar?: string;
-    user_register_day?: string;
-    user_last_login?: string;
-    user_status?: string;
-  };
+  user: UserType;
   blockUser: (id: number) => void;
   suspendUser: (id: number) => void;
 }
