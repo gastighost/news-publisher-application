@@ -1,26 +1,28 @@
-"use client"
-import React from "react"
-import { CldImage } from "next-cloudinary"
-import { Post as PostType } from "../../types/post"
-import styles from "./Post.module.css"
+"use client";
+import React from "react";
+import { CldImage } from "next-cloudinary";
+import { Post as PostType } from "../../types/post";
+import styles from "./Post.module.css";
 
 export default function One_Post({ post }: { post: PostType }) {
   const formattedDate = new Date(post.date).toLocaleDateString("en-US", {
     month: "long",
     day: "numeric",
     year: "numeric",
-  })
+  });
 
   const getAuthorName = (author: PostType["author"]): string => {
-    if (!author) return "Unknown Author"
-    const nameParts = [author.firstName, author.lastName].filter(Boolean)
-    return nameParts.join(" ") || "Unknown Author"
-  }
+    if (!author) return "Unknown Author";
+    const nameParts = [author.firstName, author.lastName].filter(Boolean);
+    return nameParts.join(" ") || "Unknown Author";
+  };
+  const frontendUrl = process.env.NEXT_PUBLIC_API_URL;
+  const postURL = `${frontendUrl}/posts/${post.id}`;
 
   const displayContent =
     post.content.length > 350
       ? post.content.substring(0, 347) + "..."
-      : post.content
+      : post.content;
 
   return (
     <article className={styles.postContainer}>
@@ -49,11 +51,19 @@ export default function One_Post({ post }: { post: PostType }) {
         </div>
         <div className={styles.postFooter}>
           <p className={styles.postMeta}>
-            {post.category || "General"} | {getAuthorName(post.author)} | {formattedDate}
+            {post.category || "General"} | {getAuthorName(post.author)} |{" "}
+            {formattedDate}
           </p>
-          <button className={styles.moreButton}>More</button>
+          <button
+            className={styles.moreButton}
+            onClick={() => {
+              window.location.href = postURL;
+            }}
+          >
+            More
+          </button>
         </div>
       </div>
     </article>
-  )
+  );
 }
