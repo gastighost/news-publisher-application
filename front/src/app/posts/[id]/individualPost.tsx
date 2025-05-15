@@ -52,7 +52,9 @@ export default function IndividualPost(post: PostProps) {
 
         <div className="article-meta">
           <span className="byline">{`By: ${authorName}`}</span>
-          <span className="publish-date">{post.date}</span>
+          <span className="publish-date">
+            {new Date(post.date).toDateString()}
+          </span>
         </div>
 
         <div className="article-actions">

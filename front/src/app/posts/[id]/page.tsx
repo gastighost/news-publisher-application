@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { PostProps } from "./individualPost";
 import React from "react";
+import mainStyles from "@/app/page.module.css";
 
 export default function PostPage({
   params,
@@ -36,13 +37,15 @@ export default function PostPage({
 
   return (
     <>
-      <Header />
-      {post ? (
-        <IndividualPost {...post} />
-      ) : (
-        <div>Content still loading or not found ...</div>
-      )}
-      <Footer />
+      <div className={mainStyles.container}>
+        <Header />
+        {post ? (
+          <IndividualPost {...post} />
+        ) : (
+          <div>Content still loading or not found ...</div>
+        )}
+        <Footer />
+      </div>
     </>
   );
 }
