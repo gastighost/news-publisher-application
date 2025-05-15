@@ -31,7 +31,6 @@ const envSchema = z.object({
     .nonempty("CLOUDINARY_API_SECRET is required"),
 });
 
-
 const parsedEnv = envSchema.safeParse(process.env);
 
 if (!parsedEnv.success) {
