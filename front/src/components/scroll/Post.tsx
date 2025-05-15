@@ -3,6 +3,7 @@ import React from "react"
 import { CldImage } from "next-cloudinary"
 import { Post as PostType } from "../../types/post"
 import styles from "./Post.module.css"
+import Link from "next/link"
 
 export default function One_Post({ post }: { post: PostType }) {
   const formattedDate = new Date(post.date).toLocaleDateString("en-US", {
@@ -51,7 +52,7 @@ export default function One_Post({ post }: { post: PostType }) {
           <p className={styles.postMeta}>
             {post.category || "General"} | {getAuthorName(post.author)} | {formattedDate}
           </p>
-          <button className={styles.moreButton}>More</button>
+          <Link href={`/post/${post.id}`} className={styles.moreButton}>More</Link>
         </div>
       </div>
     </article>

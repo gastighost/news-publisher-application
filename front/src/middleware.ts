@@ -1,56 +1,60 @@
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server"
+import type { NextRequest } from "next/server"
 
-export const unprotectedRoutes = ["/", "/signin"];
+// Add /post to unprotected routes
+export const unprotectedRoutes = ["/", "/signin", "/user", "/post"]
 
 export async function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+  const { pathname } = request.nextUrl
 
-  // Allow access to unprotected routes
-  if (unprotectedRoutes.includes(pathname)) {
-    return NextResponse.next();
+  if (
+    unprotectedRoutes.some(
+      (route) =>
+        pathname === route ||
+        (route !== "/" && pathname.startsWith(`${route}/`))
+    )
+  ) {
+    return NextResponse.next()
   }
 
-  // Check if the session cookie exists
-  const sessionCookie = request.cookies.get(process.env.SESSION_COOKIE_NAME!);
+  const sessionCookie = request.cookies.get(
+    process.env.SESSION_COOKIE_NAME || "connect.sid"
+  )
 
   if (!sessionCookie) {
-    const signInUrl = new URL("/signin", request.url);
-    return NextResponse.redirect(signInUrl);
+    const signInUrl = new URL("/signin", request.url)
+    return NextResponse.redirect(signInUrl)
   }
 
-  // Validate the session cookie with the backend
   try {
+    const cookieHeader = request.headers.get("cookie") || ""
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/status`,
       {
         method: "GET",
         headers: {
-          Cookie: `${sessionCookie.name}=${sessionCookie.value}`,
+          Cookie: cookieHeader,
+          Accept: "application/json",
         },
-        credentials: "include",
       }
-    );
+    )
 
     if (response.ok) {
-      const data = await response.json();
-      if (data.authenticated) {
-        return NextResponse.next();
+      const data = await response.json()
+      if (data.authenticated && data.user) {
+        return NextResponse.next()
       }
     }
-
-    console.log("Session validation failed. Redirecting to /signin.");
   } catch (error) {
-    console.error("Error validating session cookie:", error);
+    console.error(error)
   }
 
-  // Redirect unauthenticated users to the sign-in page
-  const signInUrl = new URL("/signin", request.url);
-  return NextResponse.redirect(signInUrl);
+  const signInUrl = new URL("/signin", request.url)
+  return NextResponse.redirect(signInUrl)
 }
 
 export const config = {
   matcher: [
     "/((?!api|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|appspecific).*)",
   ],
-};
+}

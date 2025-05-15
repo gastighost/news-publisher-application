@@ -1,0 +1,266 @@
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.backLink {
+  display: inline-block;
+  margin-bottom: 2rem;
+  color: var(--secondary-text-color);
+  text-decoration: none;
+  font-family: var(--font-saira), sans-serif;
+  font-size: 1rem;
+  transition: color 0.2s;
+}
+
+.backLink:hover {
+  color: var(--text-color);
+}
+
+.postContainer {
+  background-color: var(--background-color);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.postHeader {
+  padding: 2rem 2rem 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.postTitle {
+  font-family: var(--font-open-sans-hebrew), sans-serif;
+  font-size: 3rem;
+  font-style: italic;
+  font-weight: normal;
+  line-height: 1.2;
+  margin: 0 0 1rem;
+  color: var(--text-color);
+}
+
+.postSubtitle {
+  font-family: var(--font-saira), sans-serif;
+  font-size: 1.5rem;
+  font-weight: normal;
+  margin: 0 0 1.5rem;
+  color: var(--subtitle-text-color);
+}
+
+.postMeta {
+  font-family: var(--font-saira), sans-serif;
+  font-size: 1rem;
+  color: var(--secondary-text-color);
+}
+
+.heroImage {
+  width: 100%;
+  height: auto;
+  position: relative;
+}
+
+.image {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+.postContent {
+  padding: 2rem;
+  font-family: var(--font-saira), sans-serif;
+  font-size: 1.25rem;
+  line-height: 1.7;
+  color: var(--text-color);
+}
+
+/* Comments Section */
+.commentsSection {
+  margin-top: 3rem;
+  padding: 2rem;
+  background-color: var(--background-color);
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.commentsTitle {
+  font-family: var(--font-open-sans-hebrew), sans-serif;
+  font-size: 1.8rem;
+  font-style: italic;
+  font-weight: normal;
+  margin-bottom: 1.5rem;
+  color: var(--text-color);
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.75rem;
+}
+
+.commentForm {
+  margin-bottom: 2rem;
+}
+
+.commentTextarea {
+  width: 97%;
+  min-height: 120px;
+  padding: 1rem;
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  color: var(--text-color);
+  font-family: var(--font-saira), sans-serif;
+  font-size: 1rem;
+  resize: vertical;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  margin-bottom: 1rem;
+  margin-right: 10px;
+}
+
+.commentTextarea:focus {
+  outline: none;
+  border-color: #4d7cc7;
+  box-shadow: 0 0 0 2px rgba(77, 124, 199, 0.2);
+}
+
+.commentButton {
+  padding: 0.75rem 1.5rem;
+  background-color: #4d7cc7;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-family: var(--font-saira), sans-serif;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.commentButton:hover {
+  background-color: #3d6cb7;
+}
+
+.commentButton:active {
+  transform: translateY(1px);
+}
+
+.commentsList {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.commentItem {
+  padding: 1.5rem;
+  border-radius: 6px;
+  background-color: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-color);
+}
+
+.commentHeader {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.commentAuthor {
+  font-family: var(--font-saira), sans-serif;
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--text-color);
+}
+
+.commentDate {
+  font-family: var(--font-saira), sans-serif;
+  font-size: 0.9rem;
+  color: var(--secondary-text-color);
+}
+
+.commentContent {
+  font-family: var(--font-saira), sans-serif;
+  font-size: 1.1rem;
+  line-height: 1.5;
+  color: var(--text-color);
+}
+
+.noComments {
+  text-align: center;
+  padding: 2rem 0;
+  color: var(--secondary-text-color);
+  font-family: var(--font-saira), sans-serif;
+  font-style: italic;
+}
+
+.unauthorizedCommentSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.authPrompt {
+  font-size: 16px;
+  color: #777;
+  margin: 0;
+}
+
+.commentSignInButton {
+  background-color: #ffcc00;
+  color: #000;
+  font-weight: 600;
+  padding: 12px 30px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 16px;
+  transition: all 0.2s ease-in-out;
+  border: none;
+  cursor: pointer;
+  display: inline-block;
+  text-align: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.commentSignInButton:hover {
+  background-color: #ffd633;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.commentSignInButton:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 768px) {
+  .postTitle {
+    font-size: 2rem;
+  }
+  
+  .postSubtitle {
+    font-size: 1.25rem;
+  }
+  
+  .postContent {
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .commentsSection {
+    padding: 1.5rem;
+  }
+  
+  .commentsTitle {
+    font-size: 1.5rem;
+  }
+  
+  .commentTextarea {
+    min-height: 100px;
+  }
+  
+  .commentItem {
+    padding: 1.25rem;
+  }
+  
+  .commentContent {
+    font-size: 1rem;
+  }
+}
