@@ -1,0 +1,37 @@
+.postbtnGrid {
+  display: grid;
+  grid-template-columns: 4fr 1fr;
+  margin: 25px;
+}
+
+.fbBtns {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.fbBtns button {
+  width: 100%;
+  height: 50px;
+  font-family: inherit;
+  font-size: 18px;
+  font-weight: normal;
+  line-height: 1.2;
+  color: inherit;
+  background-color: darkorange; /* will style later*/
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  padding: 10px;
+  margin: 20px;
+}
+
+@media screen and (max-width: 550px) {
+  .postbtnGrid {
+    display: block;
+  }
+  .fbBtns button {
+    margin: 10px;
+  }
+}
