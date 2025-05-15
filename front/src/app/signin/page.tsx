@@ -41,9 +41,10 @@ export default function SignInPage() {
         const success = await authApi.login(loginIdentifier, password);
         if (success) {
           setSuccessMessage("Login successful! Redirecting...");
-          setTimeout(() => {
-            router.push("/admin");
-          }, 1500);
+          setError(null); // Good practice to clear previous errors
+          // setTimeout(() => { // Temporarily comment out setTimeout
+          router.push("/"); 
+          // }, 1500);
         } else {
           setError("Invalid username/email or password.");
         }
