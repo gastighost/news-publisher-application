@@ -1,0 +1,127 @@
+.main{
+  display: grid;
+  grid-template-columns: 3.5fr 6.5fr;
+  border: 1px solid white;
+  border-radius: 5px;
+  margin: 15px;
+  gap: 20px;
+}
+
+#left {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-left: 15px;
+  margin-bottom: 10px;
+}
+
+#right {
+  display: flex;
+  flex-direction: column;
+  
+}
+
+#upload {
+  aspect-ratio: 3 / 2; /* Maintain aspect ratio */
+  background-image: url("/placeholder.jpg");
+  background-size: cover;
+  background-position: center;
+  width: 100%; /* Allow it to adapt to the grid */
+  height: auto; /* Maintain aspect ratio */
+  margin: 10px;
+
+}
+
+.buttons {
+  display: flex;
+  flex-direction: row;
+  justify-content: left;
+  gap: 10px;
+}
+
+.btn {
+  border: none;
+  border-radius: 5px;
+  text-align: center;
+  cursor: pointer;
+  color: white;
+  padding: 10px 20px;
+  font-weight: bold;
+}
+
+.titleInput {
+  width:80%;
+  margin: 10px;
+  background-color: transparent;
+  border: none;
+  color: inherit;
+  resize: vertical;
+}
+
+.titleInput:focus {
+  outline: none;
+  border: none;
+}
+
+#editor {
+  width: 90%;
+  margin: 10px;
+  display: block;
+  border: 1px solid white;
+  padding: 10px;
+  padding-top: 5px;
+  border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+}
+
+.stylebtns {
+  display: flex;
+  flex-direction: row;
+  justify-content: left;
+  gap: 10px;
+  background-color: #333333;
+  border: 0.5px solid white;
+  border-radius: 5px;
+}
+
+#editor button {
+  background-color: transparent;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  font-size: 20px;
+}
+
+#editor button:hover {
+  background-color: #111111;
+}
+
+#textarea {
+  resize: vertical;
+  min-height: 180px;
+  color: inherit;
+  background-color: transparent;
+    padding: 10px;
+  border-radius: 5px;
+}
+
+#textarea:focus {
+  outline: none;
+}
+
+@media screen and (max-width: 600px)  {
+  .main {
+    display: block;
+  }
+  #left {
+    margin: 10px;
+    margin-top: 0px;
+  }
+  #editor {
+    width: 85%;
+  }
+
+}
