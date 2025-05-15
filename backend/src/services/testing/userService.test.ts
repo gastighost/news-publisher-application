@@ -117,4 +117,10 @@ describe("User Service Integration Tests", () => {
     const isPasswordValid = await loginUser(testUser.email, testUser.password);
     expect(isPasswordValid).toBeTruthy();
   });
+
+  test("should login a user with valid username", async () => {
+    const user = await loginUser(testUser.username, testUser.password);
+    expect(user).toHaveProperty("id");
+    expect(user.username).toBe(testUser.username);
+  });
 });

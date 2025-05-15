@@ -1,5 +1,5 @@
 import { Role } from "@prisma/client";
-import { Readable } from "stream";
+import { Readable, PassThrough } from "stream";
 import {
   PrismaClientKnownRequestError,
   PrismaClientValidationError,
@@ -16,7 +16,7 @@ import {
   deletePost,
 } from "../postService";
 import { CustomError } from "../../errors/CustomError";
-
+import cloudinary from "../../config/cloudinaryConfig";
 import prisma from "../../prisma/prisma_config";
 
 jest.mock("cloudinary", () => ({
@@ -34,6 +34,8 @@ jest.mock("cloudinary", () => ({
 }));
 
 beforeAll(async () => {
+  jest.spyOn(console, "error").mockImplementation(() => {});
+
   await prisma.$connect();
 
   await prisma.postLike.deleteMany();
@@ -54,6 +56,8 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  await prisma.$disconnect();
+
   await prisma.$disconnect();
 });
 
@@ -257,4 +261,54 @@ describe("Post Service Integration Tests", () => {
       PrismaClientKnownRequestError
     );
   });
+});
+
+it("should throw an error if Cloudinary upload fails", async () => {
+  jest
+    .spyOn(cloudinary.uploader, "upload_stream")
+    .mockImplementationOnce(function (
+      optionsOrCallback?: unknown,
+      callbackMaybe?: unknown
+    ) {
+      const callback =
+        typeof optionsOrCallback === "function"
+          ? optionsOrCallback
+          : callbackMaybe;
+      const stream = new PassThrough();
+
+      const originalEnd = stream.end;
+      stream.end = function (
+        chunk?: any,
+        encodingOrCallback?: BufferEncoding | (() => void),
+        cb?: () => void
+      ) {
+        if (typeof callback === "function") {
+          callback(new Error("Cloudinary error"));
+        }
+
+        return originalEnd.call(this, chunk, encodingOrCallback as any, cb);
+      };
+      return stream;
+    });
+
+  const mockFile = {
+    buffer: Buffer.from("fail"),
+    originalname: "fail.png",
+    fieldname: "titleImage",
+    encoding: "7bit",
+    mimetype: "image/png",
+    size: 1234,
+    stream: new PassThrough(),
+    destination: "",
+    filename: "",
+    path: "",
+  };
+
+  await expect(
+    createPost(1, {
+      title: "Fail Post",
+      content: "Should fail",
+      titleImage: mockFile,
+    })
+  ).rejects.toThrow("Failed to upload image");
 });
