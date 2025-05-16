@@ -1,18 +1,53 @@
+/* Define color palette and global styles */
+:root {
+  --bg-primary: #121212;
+  --bg-secondary: #1e1e1e;
+  --bg-tertiary: #2a2a2a;
+  --bg-input: #252525;
+  --bg-modal: #282828;
+
+  --text-primary: #e0e0e0;
+  --text-secondary: #b0b0b0;
+  --text-placeholder: #757575;
+  --text-on-accent: #ffffff;
+
+  --border-primary: #3a3a3a;
+  --border-input: #4a4a4a;
+  --border-focus: #007bff; /* Example blue, can be themed */
+
+  --accent-primary: #007bff;
+  --accent-success: #28a745;
+  --accent-warning: #ffc107; /* Orange for Save Draft */
+  --accent-error: #dc3545;
+
+  --font-family-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-size-base: 1rem;
+  --line-height-base: 1.6;
+  --border-radius-base: 8px;
+  --border-radius-small: 4px;
+  --transition-base: all 0.2s ease-in-out;
+}
+
+/* Apply base font to the page if this module controls a significant part of it */
 .main {
+  font-family: var(--font-family-sans);
+  color: var(--text-primary);
+  background-color: var(--bg-primary); /* Overall page background */
   display: grid;
   grid-template-columns: 3.5fr 6.5fr;
-  border: 1px solid white;
-  border-radius: 5px;
-  margin: 15px;
-  gap: 20px;
+  border: 1px solid var(--border-primary);
+  border-radius: var(--border-radius-base);
+  margin: 20px; /* Increased margin for better spacing */
+  gap: 30px; /* Increased gap */
+  padding: 20px; /* Added padding to main container */
 }
 
 #left {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-start; /* Align items to the start */
   align-items: center;
-  gap: 10px;
+  gap: 20px; /* Increased gap */
   margin-left: 15px;
   margin-bottom: 10px;
 }
@@ -20,164 +55,252 @@
 #right {
   display: flex;
   flex-direction: column;
+  gap: 20px; /* Add gap for consistency */
 }
 
 #upload {
   aspect-ratio: 3 / 2; /* Maintain aspect ratio */
-  background-image: url("/placeholder.jpg");
+  background-color: var(--bg-input); /* Use input background */
+  background-image: url("/placeholder.jpg"); /* Keep placeholder */
   background-size: cover;
   background-position: center;
   width: 100%; /* Allow it to adapt to the grid */
   height: auto; /* Maintain aspect ratio */
+  border: 2px dashed var(--border-input); /* Dashed border for dropzone feel */
+  border-radius: var(--border-radius-base);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-placeholder);
+  font-size: 0.9rem;
+  transition: var(--transition-base);
+  cursor: pointer; /* Indicate it's clickable */
+  text-align: center;
+  padding: 10px; /* Add some padding for text */
   margin: 10px;
 }
 
+#upload:hover {
+  border-color: var(--border-focus);
+  background-color: var(--bg-tertiary);
+}
+
+/* Assuming the input type="file" is inside #upload and visually hidden,
+   and #upload itself acts as the label/trigger.
+   If you have a visible input, it would need separate styling. */
+
 .buttons {
   display: flex;
-  flex-direction: row;
-  justify-content: left;
-  gap: 10px;
+  flex-direction: column; /* Stack buttons vertically for better fit */
+  justify-content: flex-start;
+  gap: 15px; /* Gap between buttons */
+  width: 100%; /* Make button container take full width of #left */
 }
 
 .btn {
   border: none;
-  border-radius: 5px;
+  border-radius: var(--border-radius-small);
   text-align: center;
   cursor: pointer;
-  color: white;
-  padding: 10px 20px;
+  padding: 12px 20px; /* Adjusted padding */
   font-weight: bold;
+  font-size: 0.95rem;
+  transition: var(--transition-base);
+  width: 100%; /* Make buttons take full width */
+  color: white;
 }
 
+/* Specific button styles will be applied via props in component,
+   but we can define base styles for common button types if needed here,
+   or rely on inline styles from the component for unique bgColors.
+   Example for .btn if it were to use theme colors directly:
+.btn.saveDraft {
+  background-color: var(--accent-warning);
+  color: #000;
+}
+.btn.publish {
+  background-color: var(--accent-success);
+  color: var(--text-on-accent);
+}
+*/
+
 .titleInput {
-  width: 80%;
-  margin: 10px;
-  background-color: transparent;
-  border: none;
-  color: inherit;
+  width: 100%; /* Full width */
+  margin: 0; /* Remove default margin if any, rely on parent gap */
+  background-color: var(--bg-input);
+  border: 1px solid var(--border-input);
+  color: var(--text-primary);
   resize: vertical;
+  padding: 12px 15px; /* Added padding */
+  border-radius: var(--border-radius-small);
+  font-size: 1.2rem; /* Default size, can be overridden by props */
+  transition: var(--transition-base);
+  line-height: 1.4;
+}
+
+.titleInput::placeholder {
+  color: var(--text-placeholder);
 }
 
 .titleInput:focus {
   outline: none;
-  border: none;
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25); /* Focus ring */
 }
 
 #editor {
-  width: 90%;
-  margin: 10px;
-  display: block;
-  border: 1px solid white;
-  padding: 10px;
-  padding-top: 5px;
-  border-radius: 5px;
+  width: 100%; /* Full width */
+  margin: 0; /* Remove default margin */
+  border: 1px solid var(--border-primary);
+  padding: 15px; /* Increased padding */
+  border-radius: var(--border-radius-base);
+  background-color: var(--bg-secondary); /* Editor container background */
   display: flex;
   flex-direction: column;
+  gap: 10px; /* Gap between style buttons and textarea */
 }
 
 .stylebtns {
   display: flex;
   flex-direction: row;
-  justify-content: left;
-  gap: 10px;
-  background-color: #333333;
-  border: 0.5px solid white;
-  border-radius: 5px;
+  justify-content: flex-start;
+  gap: 8px; /* Gap between style buttons */
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--border-radius-small);
+  padding: 8px; /* Padding around buttons */
 }
 
 #editor button {
   background-color: transparent;
-  border: none;
-  color: inherit;
+  border: 1px solid transparent; /* Add transparent border for consistent sizing on hover */
+  color: var(--text-secondary);
   cursor: pointer;
-  font-size: 20px;
+  font-size: 1rem; /* Adjusted size */
+  padding: 6px 10px; /* Padding for buttons */
+  border-radius: var(--border-radius-small);
+  transition: var(--transition-base);
 }
 
 #editor button:hover {
-  background-color: #111111;
+  background-color: var(--bg-input);
+  color: var(--text-primary);
+  border-color: var(--border-input);
 }
 
 #textarea {
   resize: vertical;
-  min-height: 180px;
-  color: inherit;
-  background-color: transparent;
-  padding: 10px;
-  border-radius: 5px;
+  min-height: 250px; /* Increased min-height */
+  color: var(--text-primary);
+  background-color: var(--bg-input);
+  padding: 15px; /* Padding inside textarea */
+  border: 1px solid var(--border-input);
+  border-radius: var(--border-radius-small);
+  font-family: var(--font-family-sans); /* Ensure consistent font */
+  font-size: 1rem;
+  line-height: var(--line-height-base);
+  transition: var(--transition-base);
+}
+
+#textarea::placeholder {
+  color: var(--text-placeholder);
 }
 
 #textarea:focus {
   outline: none;
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25); /* Focus ring */
+  background-color: var(--bg-secondary); /* Slightly change bg on focus */
 }
 
-@media screen and (max-width: 600px) {
+@media screen and (max-width: 768px) { /* Adjusted breakpoint */
   .main {
-    display: block;
+    grid-template-columns: 1fr; /* Stack columns */
+    margin: 15px;
+    padding: 15px;
   }
   #left {
-    margin: 10px;
-    margin-top: 0px;
+    margin: 0; /* Remove specific margins, rely on gap */
   }
   #editor {
-    width: 85%;
+    width: 100%; /* Ensure full width in stacked layout */
+  }
+  .buttons {
+    flex-direction: row; /* Buttons side-by-side if space allows on mobile */
+    gap: 10px;
+  }
+  .btn {
+    flex-grow: 1; /* Allow buttons to share space */
   }
 }
 
+/* Popup Styles */
 .createPostPopupOverlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(30, 30, 30, 0.7);
+  background: rgba(0, 0, 0, 0.7); /* Darker, more subtle overlay */
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
+  backdrop-filter: blur(5px); /* Modern blur effect */
 }
 
 .createPostPopupBox {
-  background: #222;
-  border: 1px solid #fff;
-  border-radius: 10px;
-  padding: 32px 24px;
+  background: var(--bg-modal);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--border-radius-base);
+  padding: 30px 35px; /* Adjusted padding */
   min-width: 320px;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
-  color: #fff;
+  max-width: 450px; /* Max width for popup */
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3); /* Softer shadow */
+  color: var(--text-primary);
   text-align: center;
 }
 
 .createPostPopupContent h2 {
   margin-top: 0;
-  color: #4caf50;
+  margin-bottom: 15px; /* Space below title */
+  font-size: 1.5rem;
+  color: var(--accent-success); /* Default success color */
+}
+
+.createPostPopupContent p { /* Style for the message paragraph */
+  font-size: 1rem;
+  color: var(--text-secondary);
+  margin-bottom: 25px;
 }
 
 .createPostPopupButton {
   margin-top: 20px;
-  background: #4caf50;
-  color: #fff;
+  background: var(--accent-success);
+  color: var(--text-on-accent);
   border: none;
-  border-radius: 5px;
-  padding: 10px 28px;
+  border-radius: var(--border-radius-small);
+  padding: 12px 30px; /* Adjusted padding */
   font-weight: bold;
   cursor: pointer;
   font-size: 1rem;
+  transition: var(--transition-base);
 }
 
 .createPostPopupButton:hover {
-  background: #388e3c;
+  opacity: 0.85; /* Common hover effect for buttons */
 }
 
 /* Error popup overrides */
 .createPostPopupBox.error {
-  border-color: #f44336;
+  border-color: var(--accent-error);
 }
-.createPostPopupContent h2.error {
-  color: #f44336;
+.createPostPopupContent h2.error { /* Ensure class is applied to h2 for error */
+  color: var(--accent-error);
 }
-.createPostPopupButton.error {
-  background: #f44336;
+.createPostPopupButton.error { /* Ensure class is applied to button for error */
+  background: var(--accent-error);
 }
 .createPostPopupButton.error:hover {
-  background: #c62828;
+  opacity: 0.85;
 }

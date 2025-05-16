@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 
 // Add /post to unprotected routes
-export const unprotectedRoutes = ["/", "/signin", "/user", "/post"]
+export const unprotectedRoutes = ["/", "/signin", "/user", "/post", "/createpost"]
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
