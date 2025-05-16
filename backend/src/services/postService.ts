@@ -43,6 +43,7 @@ export async function getAllPostsAdmin(offset = 0, limit = 5) {
       content: true,
       category: true,
       date: true,
+      approved: true,
       commentsEnabled: true,
       author: {
         select: {
