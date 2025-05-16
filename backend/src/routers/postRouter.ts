@@ -17,6 +17,7 @@ import {
   getApprovedPostById,
   updateComment,
   updatePostStatus,
+  getAllPostsAdmin,
 } from "../services/postService";
 import { CustomError } from "../errors/CustomError";
 import upload from "../middleware/multer";
@@ -39,6 +40,23 @@ router.get("/", async (req: Request, res: Response) => {
     res.status(500).json({ message: "Failed to fetch posts" });
   }
 });
+
+router.get(
+  "/admin-all",
+  requireAuth,
+  requireRole([Role.ADMIN]),
+  async (req: Request, res: Response) => {
+    const offset = parseInt(req.query.offset as string) || 0;
+    const limit = parseInt(req.query.limit as string) || 5;
+
+    const posts = await getAllPostsAdmin(offset, limit);
+
+    res.status(200).json({
+      message: "All posts fetched successfully",
+      posts,
+    });
+  }
+);
 
 router.get("/:postId", async (req: Request, res: Response) => {
   const postId = parseInt(req.params.postId);

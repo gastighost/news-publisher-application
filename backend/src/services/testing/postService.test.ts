@@ -8,6 +8,7 @@ import {
 import {
   getAllPosts,
   getApprovedPostById,
+  getAllPostsAdmin,
   addCommentToPost,
   updateComment,
   deleteComment,
@@ -311,4 +312,79 @@ it("should throw an error if Cloudinary upload fails", async () => {
       titleImage: mockFile,
     })
   ).rejects.toThrow("Failed to upload image");
+});
+
+describe("getAllPostsAdmin", () => {
+  let adminUserId: number;
+
+  beforeAll(async () => {
+    const adminUser = await prisma.user.create({
+      data: {
+        email: "adminuser@example.com",
+        username: "adminuser",
+        password: "hashedpassword",
+        firstName: "Admin",
+        lastName: "User",
+        type: Role.ADMIN,
+      },
+    });
+    adminUserId = adminUser.id;
+  });
+
+  afterEach(async () => {
+    await prisma.postLike.deleteMany();
+    await prisma.postComment.deleteMany();
+    await prisma.post.deleteMany();
+  });
+
+  it("should return all posts regardless of approval status", async () => {
+    await prisma.post.create({
+      data: {
+        title: "Approved Post",
+        content: "Approved content",
+        approved: true,
+        authorId: adminUserId,
+      },
+    });
+    await prisma.post.create({
+      data: {
+        title: "Unapproved Post",
+        content: "Unapproved content",
+        approved: false,
+        authorId: adminUserId,
+      },
+    });
+
+    const posts = await getAllPostsAdmin(0, 10);
+    const titles = posts.map((p) => p.title);
+
+    expect(titles).toContain("Approved Post");
+    expect(titles).toContain("Unapproved Post");
+    expect(posts.length).toBeGreaterThanOrEqual(2);
+  });
+
+  it("should respect offset and limit", async () => {
+    for (let i = 1; i <= 3; i++) {
+      await prisma.post.create({
+        data: {
+          title: `Post ${i}`,
+          content: `Content ${i}`,
+          approved: i % 2 === 0,
+          authorId: adminUserId,
+        },
+      });
+    }
+
+    const firstTwo = await getAllPostsAdmin(0, 2);
+    expect(firstTwo.length).toBe(2);
+
+    const nextOne = await getAllPostsAdmin(2, 2);
+    expect(nextOne.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("should return an empty array if there are no posts", async () => {
+    await prisma.post.deleteMany();
+    const posts = await getAllPostsAdmin(0, 10);
+    expect(posts).toEqual([]);
+  });
 });

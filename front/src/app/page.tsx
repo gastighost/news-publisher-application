@@ -1,29 +1,24 @@
-import prisma from "@/prisma/prisma_config"
-import styles from "./page.module.css"
+import prisma from "@/prisma/prisma_config";
+import styles from "./page.module.css";
 
-import ScrollPosts from "../components/scroll/ScrollPosts"
-import { Post as PostType } from "@/types/post"
-import { Author as AuthorType } from "@/types/author"
+import ScrollPosts from "../components/scroll/ScrollPosts";
+import { Post as PostType } from "@/types/post";
+import { Author as AuthorType } from "@/types/author";
 
-import { Cloudinary } from "@cloudinary/url-gen"
-import { auto } from "@cloudinary/url-gen/actions/resize"
-import { autoGravity } from "@cloudinary/url-gen/qualifiers/gravity"
-import { format, quality } from "@cloudinary/url-gen/actions/delivery"
+import { Cloudinary } from "@cloudinary/url-gen";
+import { auto } from "@cloudinary/url-gen/actions/resize";
+import { autoGravity } from "@cloudinary/url-gen/qualifiers/gravity";
+import { format, quality } from "@cloudinary/url-gen/actions/delivery";
 
 import Footer from "../components/footer/Footer";
-import Header from "../components/header/Header"; 
+import Header from "../components/header/Header";
 
 export default async function Home() {
-  console.log(
-    "Cloudinary Cloud Name:",
-    process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
-  )
-
   const cld = new Cloudinary({
     cloud: {
-      cloudName: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
-    }
-  })
+      cloudName: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
+    },
+  });
 
   const rawPosts = await prisma.post.findMany({
     where: { approved: true },
@@ -53,14 +48,14 @@ export default async function Home() {
           type: true,
           registrationDate: true,
           lastLoginDate: true,
-          userStatus: true
-        }
-      }
-    }
-  })
+          userStatus: true,
+        },
+      },
+    },
+  });
 
   const posts: PostType[] = rawPosts.map((p) => {
-    const authorData = p.author
+    const authorData = p.author;
     return {
       id: p.id,
       title: p.title,
@@ -87,49 +82,42 @@ export default async function Home() {
         lastLoginDate: authorData.lastLoginDate
           ? authorData.lastLoginDate.toISOString()
           : null,
-        userStatus: authorData.userStatus
-      } as AuthorType
-    }
-  })
+        userStatus: authorData.userStatus,
+      } as AuthorType,
+    };
+  });
 
-  const getAuthorName = (
-    author: AuthorType | null | undefined
-  ): string => {
+  const getAuthorName = (author: AuthorType | null | undefined): string => {
     if (!author) {
-      return "Unknown Author"
+      return "Unknown Author";
     }
-    const nameParts = [author.firstName, author.lastName].filter(Boolean)
-    return nameParts.join(" ") || "Unknown Author"
-  }
+    const nameParts = [author.firstName, author.lastName].filter(Boolean);
+    return nameParts.join(" ") || "Unknown Author";
+  };
 
-  const initialPostsForScroll: PostType[] = posts
-    .slice(8)
-    .map((p) => {
-      let generatedImageUrl: string | null = null
-      if (p.titleImage) {
-        try {
-          generatedImageUrl = cld
-            .image(p.titleImage)
-            .resize(
-              auto().gravity(autoGravity()).width(558).height(314)
-            )
-            .delivery(format("auto"))
-            .delivery(quality("auto"))
-            .toURL()
-        } catch (e) {
-          console.error(
-            `Failed to generate Cloudinary URL for public ID ${p.titleImage}:`,
-            e
-          )
-        }
+  const initialPostsForScroll: PostType[] = posts.slice(8).map((p) => {
+    let generatedImageUrl: string | null = null;
+    if (p.titleImage) {
+      try {
+        generatedImageUrl = cld
+          .image(p.titleImage)
+          .resize(auto().gravity(autoGravity()).width(558).height(314))
+          .delivery(format("auto"))
+          .delivery(quality("auto"))
+          .toURL();
+      } catch (e) {
+        console.error(
+          `Failed to generate Cloudinary URL for public ID ${p.titleImage}:`,
+          e
+        );
       }
-      return { ...p, imageUrl: generatedImageUrl }
-    })
+    }
+    return { ...p, imageUrl: generatedImageUrl };
+  });
 
   return (
     <div className={styles.container}>
       <Header /> {/* Use the Header component here */}
-
       <main className={styles.mainContent}>
         {posts[0] ? (
           <section className={styles.featuredSection}>
@@ -143,34 +131,29 @@ export default async function Home() {
               <div className={styles.meta}>
                 {`${posts[0].category || "General"} | ${getAuthorName(
                   posts[0].author
-                )} | ${new Date(posts[0].date).toLocaleDateString(
-                  "en-US",
-                  {
-                    month: "long",
-                    day: "numeric",
-                    year: "numeric"
-                  }
-                )}`}
+                )} | ${new Date(posts[0].date).toLocaleDateString("en-US", {
+                  month: "long",
+                  day: "numeric",
+                  year: "numeric",
+                })}`}
               </div>
             </div>
             {posts[0].titleImage ? (
               (() => {
-                const publicId = posts[0].titleImage!
+                const publicId = posts[0].titleImage!;
                 const imageUrl = cld
                   .image(publicId)
-                  .resize(
-                    auto().gravity(autoGravity()).width(600).height(400)
-                  )
+                  .resize(auto().gravity(autoGravity()).width(600).height(400))
                   .delivery(format("auto"))
                   .delivery(quality("auto"))
-                  .toURL()
+                  .toURL();
                 return (
                   <img
                     src={imageUrl}
                     alt={posts[0].title}
                     className={styles.featuredImagePlaceholder}
                   />
-                )
+                );
               })()
             ) : (
               <div className={styles.featuredImagePlaceholder}>
@@ -190,35 +173,31 @@ export default async function Home() {
 
         <aside className={styles.sidebar}>
           {posts.slice(1, 4).map((post) => {
-            const formattedDate = new Date(
-              post.date
-            ).toLocaleDateString("en-US", {
-              month: "long",
-              day: "numeric",
-              year: "numeric",
-              hour: "2-digit",
-              minute: "2-digit",
-              hour12: false
-            })
-            const authorDisplayName = getAuthorName(post.author)
+            const formattedDate = new Date(post.date).toLocaleDateString(
+              "en-US",
+              {
+                month: "long",
+                day: "numeric",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: false,
+              }
+            );
+            const authorDisplayName = getAuthorName(post.author);
 
-            let cloudinaryImageUrl: string | null = null
+            let cloudinaryImageUrl: string | null = null;
             if (post.titleImage) {
               cloudinaryImageUrl = cld
                 .image(post.titleImage)
-                .resize(
-                  auto().gravity(autoGravity()).width(300).height(200)
-                )
+                .resize(auto().gravity(autoGravity()).width(300).height(200))
                 .delivery(format("auto"))
                 .delivery(quality("auto"))
-                .toURL()
+                .toURL();
             }
 
             return (
-              <div
-                key={post.id}
-                className={styles.sidebarArticle}
-              >
+              <div key={post.id} className={styles.sidebarArticle}>
                 {cloudinaryImageUrl ? (
                   <img
                     src={cloudinaryImageUrl}
@@ -232,65 +211,58 @@ export default async function Home() {
                 )}
                 <div className={styles.sidebarText}>
                   <div className={styles.meta}>
-                    {`${post.category || "General"} | ${authorDisplayName} | ${formattedDate}`}
+                    {`${
+                      post.category || "General"
+                    } | ${authorDisplayName} | ${formattedDate}`}
                   </div>
                   <h3>{post.title}</h3>
                   {post.subtitle && (
-                    <p className={styles.sidebarSubtitle}>
-                      {post.subtitle}
-                    </p>
+                    <p className={styles.sidebarSubtitle}>{post.subtitle}</p>
                   )}
-                  <div className={styles.meta}>
-                    Space | 7 mins read
-                  </div>
+                  <div className={styles.meta}>Space | 7 mins read</div>
                 </div>
               </div>
-            )
+            );
           })}
         </aside>
       </main>
-
       <section className={styles.bottomSection}>
         {posts.slice(4, 8).map((post) => {
-          const formattedDate = new Date(
-            post.date
-          ).toLocaleDateString("en-US", {
-            month: "long",
-            day: "numeric",
-            year: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-            hour12: false
-          })
-          const authorDisplayName = getAuthorName(post.author)
+          const formattedDate = new Date(post.date).toLocaleDateString(
+            "en-US",
+            {
+              month: "long",
+              day: "numeric",
+              year: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: false,
+            }
+          );
+          const authorDisplayName = getAuthorName(post.author);
           return (
             <div key={post.id} className={styles.bottomArticle}>
               <div className={styles.meta}>
-                {`${post.category || "General"} | ${authorDisplayName} | ${formattedDate}`}
+                {`${
+                  post.category || "General"
+                } | ${authorDisplayName} | ${formattedDate}`}
               </div>
-              <h4 className={styles.bottomTitle}>
-                {post.title}
-              </h4>
+              <h4 className={styles.bottomTitle}>{post.title}</h4>
               {post.subtitle && (
-                <p className={styles.bottomArticleSubtitle}>
-                  {post.subtitle}
-                </p>
+                <p className={styles.bottomArticleSubtitle}>{post.subtitle}</p>
               )}
               <div className={styles.meta}>
                 Space | {Math.floor(Math.random() * 10) + 5} mins read
               </div>
             </div>
-          )
+          );
         })}
       </section>
-
       <section className={styles.infiniteScrollSection}>
         <h2 className={styles.sectionTitle}>More Articles</h2>
         <ScrollPosts initialPosts={initialPostsForScroll} />
       </section>
-
       <Footer />
-
     </div>
-  )
+  );
 }

@@ -30,6 +30,33 @@ export const getAllPosts = async (offset: number, limit: number) => {
   });
 };
 
+export async function getAllPostsAdmin(offset = 0, limit = 5) {
+  return await prisma.post.findMany({
+    skip: offset,
+    take: limit,
+    orderBy: { date: "desc" },
+    select: {
+      id: true,
+      title: true,
+      subtitle: true,
+      titleImage: true,
+      content: true,
+      category: true,
+      date: true,
+      approved: true,
+      commentsEnabled: true,
+      author: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          userStatus: true,
+        },
+      },
+    },
+  });
+}
+
 export const getApprovedPostById = async (postId: number) => {
   const post = await prisma.post.findUnique({
     where: { id: postId, approved: true },

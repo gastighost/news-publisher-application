@@ -1,14 +1,17 @@
 import styles from "./page.module.css";
 
 interface PostEditorProps {
-  titlePlaceholder: string;
-  titleValue: string;
+  titlePlaceholder?: string;
+  titleValue?: string;
   width?: string;
   fontSize?: string;
   changeTitle: (newTitle: string) => void;
 }
 
-export default function PostEditor() {
+export default function PostEditor({
+  changeTitle,
+  titlePlaceholder,
+}: PostEditorProps) {
   const applyStyle = (style: string) => {
     const textarea = document.getElementById(
       styles.textarea
@@ -64,7 +67,9 @@ export default function PostEditor() {
         <textarea
           id={styles.textarea}
           rows={15}
-          defaultValue={"Write your article here..."}
+          defaultValue={""}
+          placeholder={titlePlaceholder}
+          onChange={(e) => changeTitle(e.target.value)}
         ></textarea>
       </div>
     </>

@@ -5,8 +5,12 @@ import Link from "next/link";
 import styles from "./Header.module.css";
 
 export default function Header() {
-  const [authData, setAuthData] = useState({ isAuthenticated: false, username: "" });
+  const [authData, setAuthData] = useState({
+    isAuthenticated: false,
+    username: "",
+  });
   const [loading, setLoading] = useState(true);
+  const [canCreatePost, setCanCreatePost] = useState(false);
 
   useEffect(() => {
     async function checkAuthStatus() {
@@ -18,8 +22,8 @@ export default function Header() {
             credentials: "include",
             cache: "no-store",
             headers: {
-              Accept: "application/json"
-            }
+              Accept: "application/json",
+            },
           }
         );
 
@@ -29,17 +33,26 @@ export default function Header() {
           const data = await response.json();
           console.log("Auth data received:", data);
 
-          const isAuthenticated = data.authenticated === true && data.user && data.user.id;
+          setCanCreatePost(
+            data.user?.type === "WRITER" || data.user?.type === "ADMIN"
+          );
+
+          const isAuthenticated =
+            data.authenticated === true && data.user && data.user.id;
           const username = data.user?.username || "";
 
-          console.log(`Authentication status: ${isAuthenticated}, Username: ${username}`);
+          console.log(
+            `Authentication status: ${isAuthenticated}, Username: ${username}`
+          );
 
           setAuthData({
             isAuthenticated,
-            username
+            username,
           });
         } else {
-          console.log("Auth status response not ok, setting unauthenticated state");
+          console.log(
+            "Auth status response not ok, setting unauthenticated state"
+          );
           setAuthData({ isAuthenticated: false, username: "" });
         }
       } catch (error) {
@@ -62,7 +75,9 @@ export default function Header() {
 
   const handleProfileClick = (e: any) => {
     if (!authData.isAuthenticated || !authData.username) {
-      console.log("User appears to be unauthenticated. Preventing navigation and redirecting to signin.");
+      console.log(
+        "User appears to be unauthenticated. Preventing navigation and redirecting to signin."
+      );
       e.preventDefault();
       window.location.href = "/signin";
     } else {
@@ -80,6 +95,11 @@ export default function Header() {
         <Link href="/category/vancouver-today">Vancouver Today</Link>
         <Link href="/category/technologies">Technologies</Link>
         <Link href="/category/health-science">Health & Science</Link>
+        {canCreatePost && (
+          <Link href="/createpost" className={styles.createPostButton}>
+            Create Post
+          </Link>
+        )}
       </nav>
 
       {loading ? (
