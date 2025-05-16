@@ -1,7 +1,7 @@
 import styles from "./page.module.css";
 
 interface TitleEditorProps {
-  titlePlaceholder: string;
+  titlePlaceholder?: string;
   titleValue: string;
   width?: string;
   fontSize?: string;
