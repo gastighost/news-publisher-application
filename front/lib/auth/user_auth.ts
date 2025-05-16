@@ -127,3 +127,30 @@ export const postApi = {
     }
   },
 };
+
+export const approveApi = {
+  approvePost: async (postId: string, approved: boolean) => {
+    try {
+      const response = await fetch(
+        `${BACKEND_URL}/api/posts/${postId}/status`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({ approved }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to create post");
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error("Error creating post:", error);
+      throw error;
+    }
+  },
+};
