@@ -23,21 +23,33 @@ type UserData = {
   type: "ADMIN" | "WRITER" | "READER";
   registrationDate: string;
   lastLoginDate: string | null;
-  userStatus: "ACTIVE" | "INACTIVE" | "PENDING" | "BANNED" | "SUSPENDED" | "BLOCKED";
+  userStatus:
+    | "ACTIVE"
+    | "INACTIVE"
+    | "PENDING"
+    | "BANNED"
+    | "SUSPENDED"
+    | "BLOCKED";
   posts: PostType[];
 };
 
-export async function generateMetadata({ params: paramsPromise }: { params: Promise<{ username: string }> }) {
+export async function generateMetadata({
+  params: paramsPromise,
+}: {
+  params: Promise<{ username: string }>;
+}) {
   const params = await paramsPromise;
   const userData = await getUserData(params.username);
-  
+
   if (!userData) {
     return {
       title: "User Not Found | Vancouver Times",
     };
   }
-  
-  const name = `${userData.firstName || "User"} ${userData.lastName || ""}`.trim();
+
+  const name = `${userData.firstName || "User"} ${
+    userData.lastName || ""
+  }`.trim();
   return {
     title: `${name}'s Profile | Vancouver Times`,
     description: userData.bio || `${name}'s profile on Vancouver Times`,
@@ -58,15 +70,15 @@ async function getUserData(username: string): Promise<UserData | null> {
         registrationDate: true,
         lastLoginDate: true,
         userStatus: true,
-      }
+      },
     });
 
     if (!basicUser || !basicUser.username || !basicUser.email) return null;
-    
+
     const posts = await prisma.post.findMany({
-      where: { 
+      where: {
         authorId: basicUser.id,
-        approved: true 
+        approved: true,
       },
       orderBy: { date: "desc" },
       select: {
@@ -79,9 +91,9 @@ async function getUserData(username: string): Promise<UserData | null> {
         category: true,
         commentsEnabled: true,
         authorId: true,
-      }
+      },
     });
-    
+
     const userNameFields = await prisma.$queryRaw`
       SELECT 
         COALESCE(firstName, '') as firstName, 
@@ -90,11 +102,12 @@ async function getUserData(username: string): Promise<UserData | null> {
       WHERE id = ${basicUser.id}
       LIMIT 1
     `;
-    
-    const nameData = Array.isArray(userNameFields) && userNameFields.length > 0 
-      ? userNameFields[0] 
-      : { firstName: "", lastName: "" };
-    
+
+    const nameData =
+      Array.isArray(userNameFields) && userNameFields.length > 0
+        ? userNameFields[0]
+        : { firstName: "", lastName: "" };
+
     const userData: UserData = {
       id: basicUser.id,
       email: basicUser.email as string,
@@ -105,9 +118,11 @@ async function getUserData(username: string): Promise<UserData | null> {
       avatar: basicUser.avatar,
       type: basicUser.type as "ADMIN" | "WRITER" | "READER",
       registrationDate: basicUser.registrationDate.toISOString(),
-      lastLoginDate: basicUser.lastLoginDate ? basicUser.lastLoginDate.toISOString() : null,
+      lastLoginDate: basicUser.lastLoginDate
+        ? basicUser.lastLoginDate.toISOString()
+        : null,
       userStatus: basicUser.userStatus,
-      posts: posts.map(post => ({
+      posts: posts.map((post) => ({
         ...post,
         date: post.date.toISOString(),
         updatedDate: null,
@@ -124,12 +139,14 @@ async function getUserData(username: string): Promise<UserData | null> {
           avatar: basicUser.avatar,
           type: basicUser.type as "ADMIN" | "WRITER" | "READER",
           registrationDate: basicUser.registrationDate.toISOString(),
-          lastLoginDate: basicUser.lastLoginDate ? basicUser.lastLoginDate.toISOString() : null,
-          userStatus: basicUser.userStatus
-        } as Author
-      }))
+          lastLoginDate: basicUser.lastLoginDate
+            ? basicUser.lastLoginDate.toISOString()
+            : null,
+          userStatus: basicUser.userStatus,
+        } as Author,
+      })),
     };
-    
+
     return userData;
   } catch (error) {
     console.error("Error fetching user data:", error);
@@ -137,50 +154,57 @@ async function getUserData(username: string): Promise<UserData | null> {
   }
 }
 
-export default async function UserProfilePage({ params: paramsPromise }: { params: Promise<{ username: string }> }) {
+export default async function UserProfilePage({
+  params: paramsPromise,
+}: {
+  params: Promise<{ username: string }>;
+}) {
   const params = await paramsPromise; // Await the params promise
   const userData = await getUserData(params.username);
-  
+
   if (!userData) {
     notFound();
   }
-  
+
   // Initialize Cloudinary
   const cld = new Cloudinary({
     cloud: {
-      cloudName: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
-    }
+      cloudName: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
+    },
   });
-  
+
   const hasName = !!(userData.firstName || userData.lastName);
-  const fullName = hasName 
-    ? `${userData.firstName || ''} ${userData.lastName || ''}`.trim() 
-    : userData.username || 'Anonymous User';
-    
-  const memberSince = new Date(userData.registrationDate).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  });
-  
-  const lastActive = userData.lastLoginDate 
-    ? new Date(userData.lastLoginDate).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
+  const fullName = hasName
+    ? `${userData.firstName || ""} ${userData.lastName || ""}`.trim()
+    : userData.username || "Anonymous User";
+
+  const memberSince = new Date(userData.registrationDate).toLocaleDateString(
+    "en-US",
+    {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    }
+  );
+
+  const lastActive = userData.lastLoginDate
+    ? new Date(userData.lastLoginDate).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
       })
-    : 'Never';
-  
+    : "Never";
+
   return (
     <div className={styles.container}>
       <Header />
-      
+
       <main className={styles.main}>
         <div className={styles.profileHeader}>
           <div className={styles.avatarContainer}>
             {userData.avatar ? (
-              <img 
-                src={userData.avatar} 
+              <img
+                src={userData.avatar}
                 alt={`$</h1>{fullName}'s avatar`}
                 className={styles.avatar}
               />
@@ -191,15 +215,15 @@ export default async function UserProfilePage({ params: paramsPromise }: { param
               </div>
             )}
           </div>
-          
+
           <div className={styles.userInfo}>
             <h1 className={styles.userName}>
-              {hasName ? fullName : (userData.username || 'Anonymous')}
+              {hasName ? fullName : userData.username || "Anonymous"}
             </h1>
             <p className={styles.userUsername}>@{userData.username}</p>
             <p className={styles.userRole}>{userData.type}</p>
             {userData.bio && <p className={styles.userBio}>{userData.bio}</p>}
-            
+
             <div className={styles.userMeta}>
               <div className={styles.metaItem}>
                 <span className={styles.metaLabel}>Member since:</span>
@@ -211,43 +235,52 @@ export default async function UserProfilePage({ params: paramsPromise }: { param
               </div>
               <div className={styles.metaItem}>
                 <span className={styles.metaLabel}>Status:</span>
-                <span className={`${styles.statusBadge} ${styles[`status${userData.userStatus}`]}`}>
+                <span
+                  className={`${styles.statusBadge} ${
+                    styles[`status${userData.userStatus}`]
+                  }`}
+                >
                   {userData.userStatus}
                 </span>
               </div>
             </div>
           </div>
         </div>
-        
+
         <div className={styles.postsSection}>
           <h2 className={styles.sectionTitle}>Published Articles</h2>
-          
+
           {userData.posts.length > 0 ? (
             <div className={styles.postsList}>
-              {userData.posts.map(post => {
+              {userData.posts.map((post) => {
                 let cloudinaryImageUrl: string | null = null;
-                
+
                 if (post.titleImage) {
                   try {
                     cloudinaryImageUrl = cld
                       .image(post.titleImage)
-                      .resize(auto().gravity(autoGravity()).width(350).height(200))
+                      .resize(
+                        auto().gravity(autoGravity()).width(350).height(200)
+                      )
                       .delivery(format("auto"))
                       .delivery(quality("auto"))
                       .toURL();
                   } catch (e) {
-                    console.error(`Failed to generate Cloudinary URL for ${post.titleImage}:`, e);
+                    console.error(
+                      `Failed to generate Cloudinary URL for ${post.titleImage}:`,
+                      e
+                    );
                   }
                 }
-                
+
                 return (
-                  <Link href={`/posts/${post.id}`} key={post.id}>
+                  <Link href={`/post/${post.id}`} key={post.id}>
                     <div className={styles.postCard}>
                       <div className={styles.postImageContainer}>
                         {cloudinaryImageUrl ? (
-                          <img 
+                          <img
                             src={cloudinaryImageUrl}
-                            alt={post.title} 
+                            alt={post.title}
                             className={styles.postImage}
                           />
                         ) : (
@@ -258,14 +291,16 @@ export default async function UserProfilePage({ params: paramsPromise }: { param
                       </div>
                       <div className={styles.postContent}>
                         <h3 className={styles.postTitle}>{post.title}</h3>
-                        {post.subtitle && <p className={styles.postSubtitle}>{post.subtitle}</p>}
+                        {post.subtitle && (
+                          <p className={styles.postSubtitle}>{post.subtitle}</p>
+                        )}
                         <div className={styles.postMeta}>
-                          <span>{post.category || 'General'}</span>
+                          <span>{post.category || "General"}</span>
                           <span>
-                            {new Date(post.date).toLocaleDateString('en-US', {
-                              year: 'numeric',
-                              month: 'long',
-                              day: 'numeric'
+                            {new Date(post.date).toLocaleDateString("en-US", {
+                              year: "numeric",
+                              month: "long",
+                              day: "numeric",
                             })}
                           </span>
                         </div>
@@ -282,7 +317,7 @@ export default async function UserProfilePage({ params: paramsPromise }: { param
           )}
         </div>
       </main>
-      
+
       <Footer />
     </div>
   );
