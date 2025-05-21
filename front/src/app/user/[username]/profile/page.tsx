@@ -224,25 +224,39 @@ export default async function UserProfilePage({
             <p className={styles.userRole}>{userData.type}</p>
             {userData.bio && <p className={styles.userBio}>{userData.bio}</p>}
 
-            <div className={styles.userMeta}>
-              <div className={styles.metaItem}>
-                <span className={styles.metaLabel}>Member since:</span>
-                <span className={styles.metaValue}>{memberSince}</span>
+            {/* New container for metadata and admin actions */}
+            <div className={styles.metaAdminContainer}>
+              <div className={styles.userMeta}>
+                <div className={styles.metaItem}>
+                  <span className={styles.metaLabel}>Member since:</span>
+                  <span className={styles.metaValue}>{memberSince}</span>
+                </div>
+                <div className={styles.metaItem}>
+                  <span className={styles.metaLabel}>Last active:</span>
+                  <span className={styles.metaValue}>{lastActive}</span>
+                </div>
+                <div className={styles.metaItem}>
+                  <span className={styles.metaLabel}>Status:</span>
+                  <span
+                    className={`${styles.statusBadge} ${
+                      styles[`status${userData.userStatus}`]
+                    }`}
+                  >
+                    {userData.userStatus}
+                  </span>
+                </div>
               </div>
-              <div className={styles.metaItem}>
-                <span className={styles.metaLabel}>Last active:</span>
-                <span className={styles.metaValue}>{lastActive}</span>
-              </div>
-              <div className={styles.metaItem}>
-                <span className={styles.metaLabel}>Status:</span>
-                <span
-                  className={`${styles.statusBadge} ${
-                    styles[`status${userData.userStatus}`]
-                  }`}
-                >
-                  {userData.userStatus}
-                </span>
-              </div>
+
+              {userData.type === "ADMIN" && (
+                <div className={styles.adminActions}>
+                  <Link href="/user_management" className={styles.adminButton}>
+                    Manage Users
+                  </Link>
+                  <Link href="/approvepost" className={styles.adminButton}>
+                    Post Management
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
         </div>

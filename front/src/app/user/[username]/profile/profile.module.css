@@ -84,9 +84,16 @@
   display: flex;
   flex-wrap: wrap;
   gap: 1.5rem;
-  margin-top: 1rem;
+}
+
+.metaAdminContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
   border-top: 1px solid var(--border-color);
-  padding-top: 1rem;
+  gap: 2rem;
 }
 
 .metaItem {
@@ -197,7 +204,6 @@
   font-weight: normal;
 }
 
-/* Responsive styles */
 @media (max-width: 768px) {
   .profileHeader {
     flex-direction: column;
@@ -213,6 +219,18 @@
   .userInfo {
     text-align: center;
   }
+
+  .metaAdminContainer {
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .adminActions {
+    justify-content: center;
+    width: 100%;
+    margin-top: 1rem;
+  }
 }
 
 @media (max-width: 480px) {
@@ -223,4 +241,33 @@
   .postsList {
     grid-template-columns: 1fr;
   }
+}
+
+.adminActions {
+  display: flex;
+  gap: 15px; 
+}
+
+.adminButton {
+  background-color: var(--primary-color); 
+  color: var(--button-text-color-dark); 
+  padding: 10px 20px;
+  border-radius: var(--border-radius-medium); 
+  text-decoration: none;
+  font-weight: 600; 
+  font-size: 0.9rem;
+  transition: background-color 0.2s ease-in-out, transform 0.1s ease;
+  border: 1px solid var(--primary-color-dark);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); 
+  white-space: nowrap;
+  text-align: center;
+  border: 1px solid rgb(95, 95, 95);
+}
+
+.adminButton:hover {
+  background-color: var(--primary-color-dark); 
+  color: var(--button-text-color-dark-hover);
+  transform: translateY(-2px); 
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+  border: 0;
 }

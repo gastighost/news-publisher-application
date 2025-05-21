@@ -1,11 +1,12 @@
+import { Author } from "@/types/author";
+
 const BACKEND_URL =
   process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
 
-// Define the expected return type for the register function
 interface RegistrationResponse {
   success: boolean;
   message?: string;
-  user?: any; // You can replace 'any' with a more specific User type if available
+  user?: any;
 }
 
 async function register(
@@ -15,7 +16,6 @@ async function register(
 ): Promise<RegistrationResponse> {
   try {
     const response = await fetch(`${BACKEND_URL}/api/auth/register`, {
-      // Ensure this matches your backend API route
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -26,7 +26,6 @@ async function register(
     const data = await response.json();
 
     if (!response.ok) {
-      // Handles HTTP errors like 409 (User already exists), 400 (Validation error), etc.
       return {
         success: false,
         message:
@@ -34,7 +33,6 @@ async function register(
       };
     }
 
-    // Assuming your backend returns something like { message: "Registered a new user!", newUser: { ... } } on success (201)
     return { success: true, user: data.newUser, message: data.message };
   } catch (error: any) {
     console.error("Registration error:", error);
@@ -68,23 +66,19 @@ export const authApi = {
     loginIdentifier: string,
     password: string
   ): Promise<boolean> => {
-    // Parameter name changed for clarity
     try {
       const response = await fetch(`${BACKEND_URL}/api/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ emailOrUsername: loginIdentifier, password }), // Corrected body
+        body: JSON.stringify({ emailOrUsername: loginIdentifier, password }),
         credentials: "include",
       });
 
       if (response.ok) {
-        // const data = await response.json(); // Optionally process user data from response
         return true;
       }
-      // const errorData = await response.json(); // Optionally get error message from backend
-      // console.error("Login failed on client:", errorData.message);
       return false;
     } catch (error) {
       console.error("Error logging in:", error);
@@ -105,6 +99,50 @@ export const authApi = {
     }
   },
   register,
+
+  getAllUsers: async (): Promise<Author[]> => {
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/auth/users`, {
+        method: "GET",
+        credentials: "include",
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to fetch users");
+      }
+      const data = await response.json();
+      return data.users as Author[];
+    } catch (error) {
+      console.error("Error fetching users:", error);
+      throw error;
+    }
+  },
+
+  updateUserStatus: async (
+    userId: number,
+    status: "ACTIVE" | "SUSPENDED" | "BLOCKED"
+  ): Promise<Author> => {
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/auth/users/${userId}/status`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ userStatus: status }),
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to update user status");
+      }
+      const data = await response.json();
+      return data.user as Author;
+    } catch (error) {
+      console.error("Error updating user status:", error);
+      throw error;
+    }
+  },
 };
 
 export const postApi = {
