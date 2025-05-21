@@ -8,6 +8,8 @@ import AdminPostErrorPopup from "./adminposterrorpopup";
 import type { Post as PostType } from "../../types/post";
 
 import styles from "./page.module.css";
+import Header from "@/components/header/Header"; 
+import Footer from "@/components/footer/Footer"; 
 
 export default function AdminPostApproval() {
   const backendLink = process.env.NEXT_PUBLIC_BACKEND_URL;
@@ -74,65 +76,89 @@ export default function AdminPostApproval() {
   }, [page]);
 
   return (
-    <div className={styles.container}>
-      <h1 style={{ padding: "10px" }}>Admin Post Approval</h1>
-      <div className={styles.fb}>
-        {!posts.length ? (
-          <p>Loading...</p>
+    <>
+      <Header />
+      <div className={styles.adminContainer}>
+        <h1 className={styles.pageTitle}>Admin Post Approval</h1>
+        
+        {successMsg && (
+          <AdminPostSuccessPopup
+            message={successMsg}
+            onClose={() => setSuccessMsg(null)}
+          />
+        )}
+
+        {errorMsg && (
+          <AdminPostErrorPopup
+            message={errorMsg}
+            onClose={() => setErrorMsg(null)}
+          />
+        )}
+
+        {posts.length === 0 && !successMsg && !errorMsg ? (
+          <p className={styles.loadingText}>Loading posts or no posts to display...</p>
         ) : (
-          posts.map((post) => (
-            <div key={post.id} className={styles.postbtnGrid}>
-              <One_Post post={post} />
-              <div className={styles.fbBtns}>
-                {post.approved ? ( // not working right now
-                  <p>Approved</p>
-                ) : (
-                  <p>Not Approved</p>
-                )}
-                <button onClick={() => updatePostStatus(post.id, true)}>
-                  Approve
-                </button>
-                <button onClick={() => updatePostStatus(post.id, false)}>
-                  Reject
-                </button>
-                <button onClick={() => deletePost(post.id)}>Delete</button>
+          <div className={styles.postsGrid}>
+            {posts.map((post) => (
+              <div key={post.id} className={styles.postCard}>
+                <div className={styles.postCardContent}>
+                  <One_Post post={post} />
+                </div>
+                <div className={styles.postCardActions}>
+                  <span 
+                    className={`${styles.statusBadge} ${post.approved ? styles.statusApproved : styles.statusNotApproved}`}
+                  >
+                    {post.approved ? "Approved" : "Not Approved"}
+                  </span>
+                  <div className={styles.actionButtons}>
+                    <button 
+                      onClick={() => updatePostStatus(post.id, true)} 
+                      className={`${styles.actionButton} ${styles.approveButton}`}
+                      disabled={post.approved === true}
+                    >
+                      Approve
+                    </button>
+                    <button 
+                      onClick={() => updatePostStatus(post.id, false)} 
+                      className={`${styles.actionButton} ${styles.rejectButton}`}
+                      disabled={post.approved === false}
+                    >
+                      Reject
+                    </button>
+                    <button 
+                      onClick={() => deletePost(post.id)} 
+                      className={`${styles.actionButton} ${styles.deleteButton}`}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
               </div>
-            </div>
-          ))
+            ))}
+          </div>
+        )}
+
+        {posts.length > 0 && (
+          <div className={styles.paginationControls}>
+            <button
+              className={styles.paginationButton}
+              disabled={page === 1}
+              onClick={() => setPage(page - 1)}
+            >
+              Previous
+            </button>
+            <span className={styles.paginationPage}>Page {page}</span>
+            <button
+              className={styles.paginationButton}
+              disabled={posts.length < limit}
+              onClick={() => setPage(page + 1)}
+            >
+              Next
+            </button>
+          </div>
         )}
       </div>
-
-      <div className={styles.paginationControls}>
-        <button
-          className={styles.paginationButton}
-          disabled={page === 1}
-          onClick={() => setPage(page - 1)}
-        >
-          Previous
-        </button>
-        <span className={styles.paginationPage}>Page {page}</span>
-        <button
-          className={styles.paginationButton}
-          disabled={posts.length < limit}
-          onClick={() => setPage(page + 1)}
-        >
-          Next
-        </button>
-      </div>
-
-      {successMsg && (
-        <AdminPostSuccessPopup
-          message={successMsg}
-          onClose={() => setSuccessMsg(null)}
-        />
-      )}
-
-      {errorMsg && (
-        <AdminPostErrorPopup
-          message={errorMsg}
-          onClose={() => setErrorMsg(null)}
-        />
-      )}
-    </div>
+      <Footer />
+    </>
   );
 }

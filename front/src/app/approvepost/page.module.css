@@ -1,3 +1,12 @@
+body {
+  padding: 20px 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+  font-family: var(--font-saira, sans-serif);
+  color: var(--text-color);
+}
+
+
 .postbtnGrid {
   display: grid;
   grid-template-columns: 4fr 1fr;
@@ -99,11 +108,9 @@
   justify-content: center;
   align-items: center;
   gap: 18px;
-  margin: 30px 0 10px 0;
-  background: #3f3b3b;
-  position: sticky;
-  bottom: 0;
-  z-index: 10;
+  margin: 40px 0 20px 0; /* Adjusted margin */
+  background: transparent; /* Removed sticky background for cleaner look */
+  position: static; /* Removed sticky positioning */
   padding: 12px 0;
 }
 
@@ -132,4 +139,134 @@
   font-size: 1.1rem;
   font-weight: bold;
   color: white;
+}
+
+.adminContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px 40px;
+  font-family: var(--font-saira, sans-serif);
+}
+
+.pageTitle {
+  text-align: center;
+  font-size: 2.5rem;
+  font-weight: 600;
+  color: var(--text-color);
+  margin-bottom: 40px;
+  font-family: var(--font-open-sans-hebrew, sans-serif);
+}
+
+.loadingText {
+  text-align: center;
+  font-size: 1.2rem;
+  color: var(--secondary-text-color);
+  padding: 40px 0;
+}
+
+.postsGrid {
+  display: grid;
+  grid-template-columns: 1fr; /* Single column for a cleaner look */
+  gap: 30px;
+}
+
+.postCard {
+  background-color: #1a1a1a; /* Darker card background */
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column; /* Stack content and actions vertically */
+  transition: box-shadow 0.3s ease, transform 0.2s ease;
+}
+
+.postCard:hover {
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  transform: translateY(-3px);
+}
+
+.postCardContent {
+  padding: 20px;
+  flex-grow: 1; /* Allow content to take available space */
+}
+
+.postCardContent > article { /* Target the One_Post article directly */
+  margin-bottom: 0; /* Remove default margin from One_Post if any */
+  border-bottom: none; /* Remove default border from One_Post if any */
+  padding: 0; /* Remove default padding from One_Post if any */
+}
+
+.postCardActions {
+  padding: 15px 20px;
+  background-color: #222; /* Slightly different background for actions */
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column; /* Stack status and buttons */
+  align-items: center; /* Center items in the actions area */
+  gap: 15px;
+}
+
+.statusBadge {
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #fff;
+  text-transform: uppercase;
+}
+
+.statusApproved {
+  background-color: #388e3c; /* Green for approved */
+}
+
+.statusNotApproved {
+  background-color: #f57c00; /* Orange for not approved */
+}
+
+.actionButtons {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  justify-content: center; /* Center buttons */
+}
+
+.actionButton {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  color: #fff;
+}
+
+.actionButton:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.actionButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.approveButton {
+  background-color: #28a745; /* Green */
+}
+.approveButton:hover:not(:disabled) {
+  background-color: #218838;
+}
+
+.rejectButton {
+  background-color: #dc3545; /* Red */
+}
+.rejectButton:hover:not(:disabled) {
+  background-color: #c82333;
+}
+
+.deleteButton {
+  background-color: #6c757d; /* Grey */
+}
+.deleteButton:hover:not(:disabled) {
+  background-color: #5a6268;
 }
