@@ -10,6 +10,6 @@ export type Author = {
     type: 'ADMIN' | 'WRITER' | 'READER'; // Based on common roles and backend usage
     registrationDate: string; // Or Date if you parse it
     lastLoginDate: string | null; // Or Date | null
-    userStatus: 'ACTIVE' | 'INACTIVE' | 'PENDING' | 'BANNED'; // Based on common statuses
+    userStatus: 'ACTIVE' | 'INACTIVE' | 'PENDING' | 'SUSPENDED' | 'BLOCKED'; // Updated to include backend statuses
   };
 
