@@ -54,7 +54,7 @@ export default async function Home() {
     },
   });
 
-  const posts: PostType[] = rawPosts.map((p) => {
+  const posts: PostType[] = rawPosts.map((p: any) => {
     const authorData = p.author;
     return {
       id: p.id,
