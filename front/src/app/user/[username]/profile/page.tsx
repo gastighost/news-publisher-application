@@ -122,7 +122,7 @@ async function getUserData(username: string): Promise<UserData | null> {
         ? basicUser.lastLoginDate.toISOString()
         : null,
       userStatus: basicUser.userStatus,
-      posts: posts.map((post) => ({
+      posts: posts.map((post: any) => ({
         ...post,
         date: post.date.toISOString(),
         updatedDate: null,
